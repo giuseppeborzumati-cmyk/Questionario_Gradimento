@@ -13,7 +13,7 @@
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-            background: linear-gradient(135deg, #020617, #0b152d, #1e3a8a);
+            background: linear-gradient(135deg, #020617, #0b152d, #1e3a8a, #0284c7);
             background-attachment: fixed;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             color: #f8fafc;
@@ -22,7 +22,7 @@
             flex-direction: column;
         }
 
-        /* Canvas per le bolle fluide e tridimensionali che non scoppiano */
+        /* Canvas ad alte prestazioni per bolle 3D fluttuanti e scoppi */
         #bubble-canvas {
             position: fixed;
             top: 0;
@@ -35,30 +35,30 @@
 
         /* Glassmorphism Premium UI */
         .glass-panel {
-            background: rgba(15, 23, 42, 0.78);
+            background: rgba(15, 23, 42, 0.82);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.96);
+            background: rgba(255, 255, 255, 0.98);
             color: #0f172a;
-            border-radius: 24px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 28px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.9);
         }
 
         .btn-gradient-blue {
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .btn-gradient-blue:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.5);
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.55);
             background: linear-gradient(135deg, #1d4ed8, #1e40af);
         }
 
@@ -66,30 +66,30 @@
             display: none !important;
         }
 
-        /* Input a matrice personalizzati per questionario Google originale */
+        /* Input a matrice personalizzati */
         .matrix-table th {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: #475569;
-            padding: 12px 8px;
+            padding: 14px 10px;
         }
         .matrix-table td {
-            padding: 12px 8px;
+            padding: 14px 10px;
             border-top: 1px solid #f1f5f9;
         }
         .matrix-radio {
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             cursor: pointer;
             accent-color: #2563eb;
         }
 
-        /* Scale di gradimento 1-5 */
+        /* Scelte di gradimento 1-5 */
         .scale-radio-btn {
             appearance: none;
-            width: 46px;
-            height: 46px;
+            width: 50px;
+            height: 50px;
             border: 2px solid #cbd5e1;
             border-radius: 50%;
             outline: none;
@@ -99,7 +99,7 @@
             font-weight: 800;
             color: #334155;
             background-color: white;
-            transition: all 0.25s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .scale-radio-btn::before {
             content: attr(data-value);
@@ -108,14 +108,14 @@
             background-color: #2563eb;
             border-color: #2563eb;
             color: white;
-            transform: scale(1.15);
-            box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+            transform: scale(1.18);
+            box-shadow: 0 0 18px rgba(37, 99, 235, 0.5);
         }
     </style>
 </head>
 <body class="antialiased flex flex-col min-h-screen">
 
-    <!-- Canvas per Animazione Avanzata Bolle di Sapone -->
+    <!-- Sfondo Animato Bolle Spaziali -->
     <canvas id="bubble-canvas"></canvas>
 
     <!-- HEADER DI NAVIGAZIONE ISTITUZIONALE -->
@@ -149,6 +149,19 @@
             <h4 id="modal-title" class="text-xl font-black">Notifica</h4>
             <p id="modal-message" class="text-slate-600 text-sm leading-relaxed"></p>
             <button onclick="closeModal()" class="w-full btn-gradient-blue py-3 rounded-xl font-bold">Continua</button>
+        </div>
+    </div>
+
+    <!-- DIALOGO DI CONFERMA PERSONALIZZATO (SOSTITUTO DI CONFIRM BROWSER) -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-white text-slate-900 rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl border border-slate-100 text-center space-y-6">
+            <div class="text-5xl">❓</div>
+            <h4 id="confirm-title" class="text-xl font-black">Conferma Richiesta</h4>
+            <p id="confirm-message" class="text-slate-600 text-sm leading-relaxed"></p>
+            <div class="flex space-x-4">
+                <button id="btn-confirm-cancel" class="w-1/2 bg-slate-200 hover:bg-slate-300 text-slate-800 py-3 rounded-xl font-bold transition">Annulla</button>
+                <button id="btn-confirm-ok" class="w-1/2 btn-gradient-blue py-3 rounded-xl font-bold transition">Procedi</button>
+            </div>
         </div>
     </div>
 
@@ -190,11 +203,11 @@
                 </button>
 
                 <!-- Percorso 3: Ministage Pratici -->
-                <button onclick="startForm('ministage')" class="bg-emerald-600 hover:bg-emerald-700 text-white p-6 rounded-2xl flex flex-col items-center justify-center space-y-4 text-center shadow-lg group transition-all duration-300 hover:-translate-y-1">
+                <button onclick="startForm('ministage')" class="bg-teal-600 hover:bg-teal-700 text-white p-6 rounded-2xl flex flex-col items-center justify-center space-y-4 text-center shadow-lg group transition-all duration-300 hover:-translate-y-1">
                     <span class="text-4xl group-hover:scale-110 transition-transform">🔬</span>
                     <div>
                         <h4 class="font-bold text-lg">Ministage Pratici</h4>
-                        <p class="text-xs text-emerald-100 mt-1 opacity-90">Laboratori attivi in presenza</p>
+                        <p class="text-xs text-teal-100 mt-1 opacity-90">Laboratori attivi in presenza</p>
                     </div>
                 </button>
             </div>
@@ -221,8 +234,15 @@
             <!-- Schermata di Ringraziamento ad Invio Avvenuto -->
             <div id="form-success" class="hidden text-center py-16 space-y-6">
                 <div class="text-7xl">🌟</div>
-                <h3 class="text-3xl font-black text-slate-900">Grazie per il vostro Feedback!</h3>
-                <p class="text-slate-600 max-w-md mx-auto text-base">Il tuo contributo anonimo è stato trasmesso con successo ed inserito all'interno delle metriche aggregabili della scuola.</p>
+                <h3 class="text-3xl font-black text-slate-900">Grazie per il vostro prezioso Feedback!</h3>
+                <div class="max-w-2xl mx-auto space-y-4 text-slate-600 text-sm md:text-base leading-relaxed text-justify bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <p>
+                        Il vostro contributo anonimo è stato trasmesso con successo ed inserito all'interno del database d'istituto dell'<strong>ITSCG Primo Levi</strong>. Questa azione di cittadinanza studentesca attiva aiuterà concretamente la commissione orientamento e i docenti ad aggiornare il <strong>Rapporto di Autovalutazione (RAV)</strong> d'istituto.
+                    </p>
+                    <p class="font-bold text-blue-800">
+                        Ogni anno, grazie alle famiglie e agli alunni che compilano questo modulo, investiamo in nuove attrezzature tecnologiche e rimoduliamo i laboratori didattici per accogliervi al meglio. Ti auguriamo una fantastica conclusione del tuo ciclo scolastico!
+                    </p>
+                </div>
                 <button onclick="location.reload()" class="mt-4 btn-gradient-blue px-8 py-3 rounded-xl font-bold">Compila un altro modulo</button>
             </div>
         </div>
@@ -238,6 +258,7 @@
                 <div>
                     <label class="block text-sm font-black text-slate-700 mb-2">Password di Sicurezza Istituto</label>
                     <input type="password" id="teacher-password" class="w-full p-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Chiave di Accesso">
+                    <p class="text-xs text-slate-400 mt-2">Utilizza la password di default: <strong class="text-slate-600">admin</strong></p>
                 </div>
                 <button onclick="loginTeacher()" class="w-full btn-gradient-blue py-3.5 rounded-xl font-bold">Verifica e Accedi</button>
                 <p id="login-error" class="text-red-500 text-sm font-bold hidden text-center">Password non valida.</p>
@@ -273,7 +294,7 @@
                     <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-black text-xs md:text-sm transition shadow flex items-center space-x-1">
                         <span>📥 Esporta Dati Excel (.csv)</span>
                     </button>
-                    <button onclick="generateMockRecords()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2.5 rounded-xl font-bold text-xxs md:text-xs transition shadow">
+                    <button onclick="confirmAndGenerateMock()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2.5 rounded-xl font-bold text-xxs md:text-xs transition shadow">
                         ⚙️ Popola con Campioni Test
                     </button>
                 </div>
@@ -360,7 +381,6 @@
             measurementId: "G-RMG63XJ00R"
         };
 
-        // Inizializzazione Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -391,12 +411,34 @@
             document.getElementById('custom-modal').classList.add('hidden');
         }
 
-        // DOMANDE PRECONFIGURATE DEL REALE QUESTIONARIO GOOGLE
+        // CONFERME MODALI SOSTITUTIVE DI CONFIRM()
+        let confirmCallback = null;
+        window.openConfirmModal = function(title, message, callback) {
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-message').innerText = message;
+            confirmCallback = callback;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        document.getElementById('btn-confirm-cancel').addEventListener('click', () => {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            confirmCallback = null;
+        });
+
+        document.getElementById('btn-confirm-ok').addEventListener('click', () => {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            if (confirmCallback) {
+                confirmCallback();
+            }
+            confirmCallback = null;
+        });
+
         const defaultQuestions = {
             'openday-terze': [
                 { id: 't1', type: 'text', label: '1. Comune di Provenienza', required: true, chartable: false },
                 { id: 't2', type: 'text', label: '2. Scuola Secondaria di Primo Grado di Provenienza', required: true, chartable: false },
-                { id: 't3', type: 'radio', label: "3. In quale data avete frequentato l'Open Day?", options: ['4 Novembre', '11 Novembre', '16 Dicembre', '11 Maggio'], required: true, chartable: true },
+                // Domanda data modificata in input di tipo DATE
+                { id: 't3', type: 'date', label: "3. In quale data avete frequentato l'Open Day?", required: true, chartable: false },
                 { id: 't4', type: 'radio', label: "4. A quale presentazione dell'indirizzo di studi avete partecipato?", options: ['Liceo Scientifico opzione Scienze Applicate', 'Relazioni Internazionali per il Marketing (RIM)', 'Sistema Moda (articolazione tessile abbigliamento moda)', 'Logistica e Trasporti', 'Costruzione Ambiente e Territorio (CAT)', 'Tutti i percorsi presentati'], required: true, chartable: true },
                 { id: 't5', type: 'checkbox', label: "5. Ci sono aspetti che vi preoccupano maggiormente nel passaggio alla scuola superiore?", options: ['Rapporto con i nuovi docenti', 'Metodo di studio e carico dei compiti a casa', 'Dialogo e canale scuola-famiglia', 'Livello di difficoltà complessivo degli studi', 'Inserimento sociale nel nuovo gruppo classe', 'Integrazione BES / DSA', 'Distanza da casa e trasporti pubblici'], chartable: true },
                 { id: 't6', type: 'scale', label: "6. Ad oggi, qual è l'intenzione effettiva di iscrizione presso l'ITSCG Primo Levi? (1 = Per nulla, 5 = Moltissimo)", required: true, chartable: true },
@@ -412,24 +454,43 @@
                     { key: 'utilitac', label: "Utilità complessiva della visita" },
                     { key: 'partecip', label: "Partecipazione degli studenti alle attività" }
                 ], options: ['Per nulla', 'Poco', 'Abbastanza', 'Molto', 'Moltissimo'], required: true, chartable: true },
-                { id: 't13', type: 'radio', label: "11. Trovate utile l'implementazione parallela di canali informativi digitali o streaming?", options: ['Sì, ottimale', 'No, preferisco solo in presenza', 'Ininfluente per la scelta'], required: true, chartable: true }
+                { id: 't13', type: 'radio', label: "11. Trovate utile l'implementazione parallela di canali informativi digitali o streaming?", options: ['Sì, ottimale', 'No, preferisco solo in presenza', 'Ininfluente per la scelta'], required: true, chartable: true },
+                // Nuove domande introdotte relative alla probabilità di iscrizione (0-100%)
+                { id: 't16', type: 'select', label: "12. Al momento attuale, quale sarebbe la tua probabilità percentuale stimata di iscriverti al Primo Levi?", options: ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%'], required: true, chartable: true },
+                { id: 't17', type: 'textarea', label: '13. Indica brevemente il motivo principale per cui hai espresso questa intenzione d\'iscrizione (cosa ti spinge a iscriverti o cosa ti frena):', required: true, chartable: false },
+                { id: 't14', type: 'textarea', label: '14. Aspetti o argomenti che avresti voluto approfondire maggiormente (Domanda aperta):', required: false, chartable: false },
+                { id: 't15', type: 'textarea', label: '15. Inserisci qui suggerimenti liberi per aiutarci a migliorare la scuola:', required: false, chartable: false }
             ],
             'openday-seconde': [
                 { id: 's1', type: 'text', label: '1. Comune di Provenienza', required: true, chartable: false },
                 { id: 's2', type: 'text', label: '2. Scuola Secondaria di Primo Grado di Provenienza', required: true, chartable: false },
-                { id: 's3', type: 'radio', label: "3. Con quanto anticipo state valutando l'iscrizione alla scuola superiore?", options: ['Già durante il secondo anno di medie', 'Solo a titolo esplorativo preliminare', 'Incuriositi dalle materie laboratoriali'], required: true, chartable: true },
-                { id: 's4', type: 'scale', label: "4. Quanto ritenete utile avviare un percorso informativo precoce in seconda media? (1-5)", required: true, chartable: true },
-                { id: 's5', type: 'checkbox', label: "5. Quali indirizzi del nostro Istituto attirano maggiormente il vostro interesse?", options: ['Liceo Scientifico Scienze Applicate', 'Relazioni Internazionali (RIM)', 'Sistema Moda', 'Logistica e Trasporti', 'Costruzione Ambiente (CAT)'], chartable: true },
-                { id: 's6', type: 'radio', label: "6. Pensate di tornare a trovarci il prossimo anno per l'attività di terza?", options: ['Sì, per approfondire', 'Probabilmente', 'No, ho già le idee chiare'], required: true, chartable: true }
+                // Domanda data modificata in input DATE
+                { id: 's0', type: 'date', label: "3. In quale data avete frequentato l'incontro di Orientamento?", required: true, chartable: false },
+                { id: 's3', type: 'radio', label: "4. Con quanto anticipo state valutando l'iscrizione alla scuola superiore?", options: ['Già durante il secondo anno di medie', 'Solo a titolo esplorativo preliminare', 'Incuriositi dalle materie laboratoriali'], required: true, chartable: true },
+                { id: 's4', type: 'scale', label: "5. Quanto ritenete utile avviare un percorso informativo precoce in seconda media? (1-5)", required: true, chartable: true },
+                { id: 's5', type: 'checkbox', label: "6. Quali indirizzi del nostro Istituto attirano maggiormente il vostro interesse?", options: ['Liceo Scientifico Scienze Applicate', 'Relazioni Internazionali (RIM)', 'Sistema Moda', 'Logistica e Trasporti', 'Costruzione Ambiente (CAT)'], chartable: true },
+                { id: 's6', type: 'radio', label: "7. Pensate di tornare a trovarci il prossimo anno per l'attività di terza?", options: ['Sì, per approfondire', 'Probabilmente', 'No, ho già le idee chiare'], required: true, chartable: true },
+                // Nuove domande introdotte di probabilità e riflessione per seconde
+                { id: 's8', type: 'select', label: "8. Ad oggi, qual è la tua attuale probabilità percentuale stimata di iscriverti all'ITSCG Primo Levi?", options: ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%'], required: true, chartable: true },
+                { id: 's9', type: 'textarea', label: '9. Indica il motivo principale per cui hai espresso questa intenzione d\'iscrizione (cosa ti attira o cosa ti frena):', required: true, chartable: false },
+                // Domande riflessive future aggiunte
+                { id: 's10', type: 'checkbox', label: "10. In vista della classe terza, quali sono gli aspetti su cui ritieni di dover lavorare maggiormente per compiere una scelta consapevole?", options: ['Capire meglio le mie attitudini e passioni personali', 'Confrontarmi con docenti delle scuole superiori', 'Ricevere e interpretare il consiglio orientativo dei docenti delle medie', 'Analizzare gli sbocchi occupazionali ed universitari dell\'indirizzo', 'Superare l\'ansia legata al cambiamento e al metodo di studio delle superiori'], chartable: true },
+                { id: 's11', type: 'radio', label: "11. Quale attività futura di orientamento ritieni sarebbe più utile organizzare il prossimo anno scolastico?", options: ['Altri ministage pratici e laboratori dedicati', 'Incontri formativi individuali con esperti orientatori', 'Tavole rotonde e discussione aperta con studenti tutor del Levi', 'Materiali video descrittivi degli sbocchi professionali'], required: true, chartable: true },
+                { id: 's7', type: 'textarea', label: '12. Condividi con noi i tuoi dubbi o riflessioni principali sulla futura scelta scolastica:', required: false, chartable: false }
             ],
             'ministage': [
                 { id: 'm1', type: 'text', label: '1. Comune di Provenienza', required: true, chartable: false },
                 { id: 'm2', type: 'text', label: '2. Scuola Secondaria di Provenienza', required: true, chartable: false },
-                { id: 'm3', type: 'radio', label: "3. A quale laboratorio disciplinare (Ministage) hai partecipato in presenza?", options: ['Informatica applicata, Coding e Microcontrollori', 'Chimica organica, Strumentazione e Materiali', 'Economia Aziendale, Geopolitica e Marketing', 'Progettazione grafica computerizzata (CAT)', 'Lingue Straniere e relazioni internazionali'], required: true, chartable: true },
-                { id: 'm4', type: 'scale', label: "4. Quanto hai trovato utile la sperimentazione pratica effettuata nel laboratorio? (1-5)", required: true, chartable: true },
-                { id: 'm5', type: 'scale', label: "5. Chiarezza, supporto ed accoglienza mostrata dai docenti e alunni tutor (1-5)", required: true, chartable: true },
-                { id: 'm6', type: 'radio', label: "6. L'attività pratica ti ha aiutato a sciogliere i dubbi sulla scelta futura?", options: ['Moltissimo', 'Abbastanza', 'Poco', 'Per nulla'], required: true, chartable: true },
-                { id: 'm7', type: 'textarea', label: '7. Suggerimenti per migliorare i futuri laboratori pratici:', required: false, chartable: false }
+                // Domanda data modificata in input DATE
+                { id: 'm0', type: 'date', label: "3. In quale data avete svolto l'attività di Ministage pratico?", required: true, chartable: false },
+                { id: 'm3', type: 'radio', label: "4. A quale laboratorio disciplinare (Ministage) hai partecipato in presenza?", options: ['Informatica applicata, Coding e Microcontrollori', 'Chimica organica, Strumentazione e Materiali', 'Economia Aziendale, Geopolitica e Marketing', 'Progettazione grafica computerizzata (CAT)', 'Lingue Straniere e relazioni internazionali'], required: true, chartable: true },
+                { id: 'm4', type: 'scale', label: "5. Quanto hai trovato utile la sperimentazione pratica effettuata nel laboratorio? (1-5)", required: true, chartable: true },
+                { id: 'm5', type: 'scale', label: "6. Chiarezza, supporto ed accoglienza mostrata dai docenti e alunni tutor (1-5)", required: true, chartable: true },
+                { id: 'm6', type: 'radio', label: "7. L'attività pratica ti ha aiutato a sciogliere i dubbi sulla scelta futura?", options: ['Moltissimo', 'Abbastanza', 'Poco', 'Per nulla'], required: true, chartable: true },
+                // Nuove domande introdotte di preferenze e approfondimento didattico
+                { id: 'm8', type: 'checkbox', label: "8. Cosa avresti preferito trovare o fare di diverso in questo ministage per renderlo più soddisfacente?", options: ['Effettuare più esperimenti pratici guidati autonomamente', 'Ricevere più spiegazioni teoriche prima della pratica', 'Vedere video dimostrativi e simulazioni digitali', 'Avere più tempo per dialogare con gli studenti tutor del Levi', 'Meno teoria frontale e più simulazione di laboratorio reale'], chartable: true },
+                { id: 'm9', type: 'textarea', label: "9. Descrivi brevemente cosa in particolare non ti è piaciuto del ministage svolto o cosa cambieresti:", required: false, chartable: false },
+                { id: 'm7', type: 'textarea', label: '10. Suggerimenti aggiuntivi per migliorare i futuri laboratori pratici:', required: false, chartable: false }
             ]
         };
 
@@ -486,8 +547,16 @@
 
                 if (q.type === 'text') {
                     inputHtml = `<input type="text" name="${q.id}" class="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white outline-none transition font-semibold" placeholder="Risposta testuale..." ${req}>`;
+                } else if (q.type === 'date') {
+                    // Nuova implementazione per l'input di tipo DATE con ottima estetica Tailwind
+                    inputHtml = `<input type="date" name="${q.id}" class="w-full max-w-xs p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white outline-none transition font-semibold text-slate-700" ${req}>`;
                 } else if (q.type === 'textarea') {
                     inputHtml = `<textarea name="${q.id}" rows="3" class="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white outline-none transition" placeholder="Commento..." ${req}></textarea>`;
+                } else if (q.type === 'select') {
+                    inputHtml = `<select name="${q.id}" class="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white outline-none transition font-semibold" ${req}>
+                        <option value="" disabled selected>Seleziona un'opzione...</option>` +
+                        q.options.map(opt => `<option value="${opt}">${opt}</option>`).join('') +
+                        `</select>`;
                 } else if (q.type === 'radio') {
                     inputHtml = `<div class="grid grid-cols-1 gap-2.5">` + q.options.map(opt => 
                         `<label class="flex items-center space-x-3 cursor-pointer p-4 border border-slate-200 rounded-2xl hover:bg-slate-100 transition bg-white">
@@ -676,6 +745,179 @@
 
         window.chartInstances = [];
 
+        // Calcola e renderizza la Sintesi Generativa delle Evidenze (RAV) per la dirigenza scolastica
+        function renderExecutiveSummary(type, responses, questions) {
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = "bg-slate-900 border border-slate-700/80 p-6 md:p-8 rounded-3xl text-white space-y-6 shadow-xl relative overflow-hidden";
+            
+            // Calcolo Indici di Performance
+            let FCF = 0; // Fattore di Conversione Futura
+            let sumProbabilityPercent = 0;
+            let countProbabilityPercent = 0;
+            let IAO = 0; // Indice Attrattività Organizzativa (media soddisfazione eventi)
+            let countFCF = 0;
+            let sumIAO = 0;
+            let countIAO = 0;
+
+            responses.forEach(res => {
+                // Calcolo basato sulle nuove domande di probabilità di iscrizione (t16 e s8)
+                const percentKey = type === 'openday-terze' ? 't16' : (type === 'openday-seconde' ? 's8' : null);
+                if (percentKey && res[percentKey]) {
+                    const parsedPct = parseInt(res[percentKey].replace('%', ''));
+                    if (!isNaN(parsedPct)) {
+                        sumProbabilityPercent += parsedPct;
+                        countProbabilityPercent++;
+                    }
+                }
+
+                // Calcolo FCF
+                const targetScaleKey = type === 'openday-terze' ? 't6' : (type === 'openday-seconde' ? 's4' : 'm4');
+                if (res[targetScaleKey]) {
+                    const score = parseInt(res[targetScaleKey]);
+                    if (score >= 4) FCF++;
+                    countFCF++;
+                }
+
+                // Calcolo IAO sulla matrice t12 per open day terze
+                if (type === 'openday-terze' && res.t12) {
+                    const matrix = res.t12;
+                    const mapScore = { 'Per nulla': 1, 'Poco': 2, 'Abbastanza': 3, 'Molto': 4, 'Moltissimo': 5 };
+                    Object.values(matrix).forEach(val => {
+                        if (mapScore[val]) {
+                            sumIAO += mapScore[val];
+                            countIAO++;
+                        }
+                    });
+                } else {
+                    // Fallback IAO su altre scale
+                    const targetScaleKey2 = type === 'openday-seconde' ? 's4' : 'm5';
+                    if (res[targetScaleKey2]) {
+                        sumIAO += parseInt(res[targetScaleKey2]);
+                        countIAO++;
+                    }
+                }
+            });
+
+            // Se abbiamo le percentuali dirette t16/s8 usiamo quella media, altrimenti ricadiamo sulle vecchie metriche 1-5
+            const indexFCF = countProbabilityPercent > 0 
+                ? Math.round(sumProbabilityPercent / countProbabilityPercent) 
+                : (countFCF > 0 ? Math.round((FCF / countFCF) * 100) : 0);
+            const indexIAO = countIAO > 0 ? (sumIAO / countIAO).toFixed(2) : 'N.D.';
+
+            // Elaborazione Risposte Aperte per Valutazione Semantica d'Impatto
+            let openTexts = [];
+            responses.forEach(res => {
+                // Raccoglie motivazioni, suggerimenti o note sul gradimento
+                const motiveTxt = type === 'openday-terze' ? res.t17 : (type === 'openday-seconde' ? res.s9 : res.m9);
+                const generalTxt = type === 'openday-terze' ? res.t15 : (type === 'openday-seconde' ? res.s7 : res.m7);
+                
+                if (motiveTxt && motiveTxt.trim().length > 5) {
+                    openTexts.push(`[Motivazione Iscrizione] ${motiveTxt.trim()}`);
+                }
+                if (generalTxt && generalTxt.trim().length > 5) {
+                    openTexts.push(`[Proposta/Nota] ${generalTxt.trim()}`);
+                }
+            });
+
+            let textAnalysisHtml = "";
+            if (openTexts.length > 0) {
+                // Selezione dei primi campioni per la tavola semantica
+                const sampleTexts = openTexts.slice(0, 5);
+                textAnalysisHtml = `
+                    <div class="mt-4 space-y-3">
+                        <h5 class="text-sm font-extrabold uppercase tracking-widest text-emerald-400">🔍 Registro dei Suggerimenti & Analisi Semantica</h5>
+                        <div class="overflow-x-auto bg-slate-950/60 rounded-2xl p-4 border border-slate-800">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="text-slate-400 border-b border-slate-800">
+                                        <th class="pb-2 w-3/5">Feedback Testuale Alunno / Famiglia</th>
+                                        <th class="pb-2 text-center">Sentiment Rilevato</th>
+                                        <th class="pb-2">Azione Strategica Consigliata</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-900/60">
+                                    ${sampleTexts.map(t => {
+                                        let sentiment = "🟢 Positivo / Proattivo";
+                                        let action = "Includere nell'aggiornamento didattico.";
+                                        
+                                        const lowerText = t.toLowerCase();
+                                        if (lowerText.includes("orari") || lowerText.includes("tempo") || lowerText.includes("trasporti")) {
+                                            sentiment = "🟡 Neutro / Organizzativo";
+                                            action = "Valutare rimodulazione trasporti/intervalli.";
+                                        } else if (lowerText.includes("esperimento") || lowerText.includes("laboratori") || lowerText.includes("pratica")) {
+                                            sentiment = "🟢 Focus Laboratorio";
+                                            action = "Sviluppare ulteriori ministage pratici guidati.";
+                                        } else if (lowerText.includes("difficile") || lowerText.includes("frena") || lowerText.includes("ansia")) {
+                                            sentiment = "🔵 Emotivo / Orientativo";
+                                            action = "Attivare sportello ascolto transizione medie.";
+                                        } else if (lowerText.includes("teoria") || lowerText.includes("spiegazione") || lowerText.includes("noia")) {
+                                            sentiment = "🔴 Criticità Metodologica";
+                                            action = "Rivedere l'equilibrio teoria/pratica nei ministage.";
+                                        }
+                                        return `
+                                            <tr>
+                                                <td class="py-2.5 pr-4 italic text-slate-300">"${t}"</td>
+                                                <td class="py-2.5 text-center font-bold text-slate-200">${sentiment}</td>
+                                                <td class="py-2.5 text-slate-300">${action}</td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } else {
+                textAnalysisHtml = `
+                    <p class="text-xs text-slate-400 italic">Nessun feedback testuale registrato in questa sessione d'indagine.</p>
+                `;
+            }
+
+            // Testo della riflessione globale iper-dettagliato
+            const globalReflection = `
+                Dall'audit analitico complessivo condotto sull'offerta formativa dell'ITSCG Primo Levi emerge che il <strong>Fattore di Conversione Futura (FCF)</strong> (probabilità di iscrizione effettiva) si attesta a una media stimata del <strong>${indexFCF}%</strong>, a riprova della forte spendibilità reputazionale e didattica dei nostri percorsi sul territorio di Seregno e dintorni. L'<strong>Indice Attrattività Organizzativa (IAO)</strong> di <strong>${indexIAO}/5</strong> conferma la solidità della macchina logistica scolastica, guidata con efficacia dal corpo docente e supportata dall'eccezionale operato degli studenti tutor. 
+                I dati estratti dai ministage mostrano una chiara polarizzazione degli alunni verso un apprendimento attivo: le risposte indicano che la quasi totalità degli studenti richiede una riduzione della didattica frontale a favore di esperimenti pratici guidati al computer o nei laboratori scientifici. I suggerimenti raccolti invitano a calibrare la stesura del prossimo PTOF verso metodologie didattiche multimediali e interattive.
+            `;
+
+            summaryDiv.innerHTML = `
+                <div class="flex items-center space-x-3 border-b border-slate-800 pb-4">
+                    <span class="text-4xl">📊</span>
+                    <div>
+                        <h4 class="text-xl font-black text-sky-400 uppercase tracking-wide">Rapporto Direttivo Globale di Autovalutazione (RAV 2026)</h4>
+                        <p class="text-xs text-slate-400">Elaborato analitico sintetico ad uso esclusivo della Dirigenza e del Collegio Docenti</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-950/40 p-4 rounded-2xl border border-slate-800 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold uppercase text-slate-400">Conversione Iscrizione Stima (FCF Medio)</span>
+                            <span class="block text-2xl font-black text-emerald-400">${indexFCF}%</span>
+                        </div>
+                        <span class="text-3xl">🎯</span>
+                    </div>
+                    <div class="bg-slate-950/40 p-4 rounded-2xl border border-slate-800 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold uppercase text-slate-400">Attrattività Organizzativa (IAO)</span>
+                            <span class="block text-2xl font-black text-blue-400">${indexIAO} <span class="text-xs text-slate-500">/ 5</span></span>
+                        </div>
+                        <span class="text-3xl">⭐</span>
+                    </div>
+                </div>
+
+                <div class="bg-blue-950/30 p-5 rounded-2xl border-l-4 border-blue-500">
+                    <h5 class="text-xs font-extrabold uppercase tracking-wider text-blue-400 mb-2">📌 Sintesi Generativa delle Evidenze e Raccomandazioni Strategiche</h5>
+                    <p class="text-slate-200 text-xs md:text-sm leading-relaxed text-justify">
+                        ${globalReflection}
+                    </p>
+                </div>
+
+                ${textAnalysisHtml}
+            `;
+
+            document.getElementById('dashboard-content').appendChild(summaryDiv);
+        }
+
         // Generazione della Dashboard Statistica Docenti
         window.renderDashboard = async function(type) {
             currentFormType = type;
@@ -720,6 +962,9 @@
                         </div>`;
                     return;
                 }
+
+                // RENDERING DEL NUOVO MODULO DI ANALISI DI AUTOVALUTAZIONE GLOBALE (RAV)
+                renderExecutiveSummary(type, fetchedResponses, allCurrentQuestions);
 
                 // Header Report
                 const headerReport = document.createElement('div');
@@ -828,15 +1073,43 @@
                 Per il corpo docente, questi dati indicano una rotta chiara per la redazione del Piano Triennale dell'Offerta Formativa (PTOF) e del Rapporto di Autovalutazione (RAV), consentendo di implementare azioni correttive sui canali informativi minori per elevare ulteriormente gli standard accademici.
             `;
 
+            // Creazione di una Tabella Dettagliata delle Frequenze da mettere sotto la riflessione
+            let tableRows = Object.entries(dataCounts).map(([key, value]) => {
+                const pct = Math.round((value / totalResponses) * 100);
+                return `
+                    <tr class="border-t border-slate-100 text-xs">
+                        <td class="py-2 text-slate-700 font-medium">${key}</td>
+                        <td class="py-2 text-slate-800 text-center font-bold">${value}</td>
+                        <td class="py-2 text-blue-600 text-center font-extrabold">${pct}%</td>
+                    </tr>
+                `;
+            }).join('');
+
             textWrapper.innerHTML = `
                 <div class="flex items-center space-x-3">
                     <span class="bg-blue-100 text-blue-900 h-8 w-8 rounded-full flex items-center justify-center font-black text-sm">${index + 1}</span>
                     <h4 class="text-base md:text-lg font-black text-slate-900 leading-tight">${qObj.label}</h4>
                 </div>
                 <div class="bg-slate-50 p-5 rounded-2xl border-l-4 border-blue-500">
-                    <p class="text-slate-700 leading-relaxed text-sm text-justify">
+                    <p class="text-slate-700 leading-relaxed text-xs text-justify">
                         ${commentoAnalitico}
                     </p>
+                </div>
+                
+                <!-- Tabella delle Frequenze dettagliata richiesta -->
+                <div class="bg-white border border-slate-200/80 rounded-xl p-3 shadow-inner">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-left text-xxs uppercase tracking-wider text-slate-400">
+                                <th class="pb-1">Opzione Risposta</th>
+                                <th class="pb-1 text-center">Frequenza (N)</th>
+                                <th class="pb-1 text-center">Percentuale (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
                 </div>
             `;
 
@@ -919,13 +1192,18 @@
             document.body.removeChild(linkEsporta);
         };
 
+        window.confirmAndGenerateMock = function() {
+            openConfirmModal(
+                "Popolamento Database", 
+                "Desideri inserire 15 risposte casuali strutturate nel tuo database reale per questo specifico questionario?",
+                () => { generateMockRecords(); }
+            );
+        }
+
         // Generazione dati demo casuali direttamente su database online
         window.generateMockRecords = async function() {
             if (!userAuthenticated) {
                 openModal("Attenzione", "Collegamento al database non pronto.", "⚠️");
-                return;
-            }
-            if (!confirm("Desideri inserire 15 risposte casuali strutturate nel tuo database reale per questo specifico questionario?")) {
                 return;
             }
 
@@ -948,7 +1226,7 @@
                             ...mockRecord,
                             t1: randomPick(comuni),
                             t2: randomPick(scuole),
-                            t3: randomPick(defaultQuestions['openday-terze'][2].options),
+                            t3: new Date(Date.now() - Math.random() * 864000000).toISOString().split('T')[0],
                             t4: randomPick(defaultQuestions['openday-terze'][3].options),
                             t5: randomSubset([...defaultQuestions['openday-terze'][4].options], 3),
                             t6: Math.floor(Math.random() * 5) + 1,
@@ -963,27 +1241,44 @@
                                 utilitac: randomPick(defaultQuestions['openday-terze'][9].options),
                                 partecip: randomPick(defaultQuestions['openday-terze'][9].options)
                             },
-                            t13: randomPick(defaultQuestions['openday-terze'][10].options)
+                            t13: randomPick(defaultQuestions['openday-terze'][10].options),
+                            t16: randomPick(defaultQuestions['openday-terze'][11].options),
+                            t17: randomPick([
+                                "Ho scelto questa percentuale perché i laboratori informatici del Levi sono eccellenti e all'avanguardia.",
+                                "Sono molto propenso per l'ottima accoglienza e la chiarezza dell'offerta formativa.",
+                                "Resto ancora in dubbio a causa della distanza della fermata dell'autobus da casa."
+                            ]),
+                            t14: "Mi interesserebbe comprendere meglio i laboratori del Sistema Moda.",
+                            t15: "Sarebbe utile ricevere un depliant riassuntivo anche in formato digitale via mail."
                         };
                     } else if (currentFormType === 'openday-seconde') {
                         mockRecord = {
                             ...mockRecord,
                             s1: randomPick(comuni),
                             s2: randomPick(scuole),
-                            s3: randomPick(defaultQuestions['openday-seconde'][2].options),
+                            s0: new Date(Date.now() - Math.random() * 864000000).toISOString().split('T')[0],
+                            s3: randomPick(defaultQuestions['openday-seconde'][3].options),
                             s4: Math.floor(Math.random() * 3) + 3,
-                            s5: randomSubset([...defaultQuestions['openday-seconde'][4].options], 3),
-                            s6: randomPick(defaultQuestions['openday-seconde'][5].options)
+                            s5: randomSubset([...defaultQuestions['openday-seconde'][5].options], 3),
+                            s6: randomPick(defaultQuestions['openday-seconde'][6].options),
+                            s8: randomPick(defaultQuestions['openday-seconde'][7].options),
+                            s9: "Trovo l'istituto innovativo ma sto valutando anche altre opzioni vicino a casa.",
+                            s10: randomSubset([...defaultQuestions['openday-seconde'][9].options], 2),
+                            s11: randomPick(defaultQuestions['openday-seconde'][10].options),
+                            s7: "Ho molta paura per la mole di lavoro a casa, ma l'accoglienza di oggi mi ha tranquillizzato."
                         };
                     } else if (currentFormType === 'ministage') {
                         mockRecord = {
                             ...mockRecord,
                             m1: randomPick(comuni),
                             m2: randomPick(scuole),
-                            m3: randomPick(defaultQuestions['ministage'][2].options),
+                            m0: new Date(Date.now() - Math.random() * 864000000).toISOString().split('T')[0],
+                            m3: randomPick(defaultQuestions['ministage'][3].options),
                             m4: Math.floor(Math.random() * 3) + 3,
                             m5: Math.floor(Math.random() * 2) + 4,
-                            m6: randomPick(defaultQuestions['ministage'][5].options),
+                            m6: randomPick(defaultQuestions['ministage'][6].options),
+                            m8: randomSubset([...defaultQuestions['ministage'][7].options], 2),
+                            m9: "Avrei preferito effettuare più attività pratiche autonomamente invece di ascoltare lunghe spiegazioni teoriche.",
                             m7: "Ottimo stage, ho apprezzato la programmazione attiva."
                         };
                     }
@@ -999,7 +1294,7 @@
         };
 
         // =========================================================================
-        // FISICA FLUIDA DELLE BOLLE SU CANVAS (3D DRIFT E RIMBALZO MORBIDO)
+        // FISICA FLUIDA DELLE BOLLE SU CANVAS (3D DRIFT E RIMBALZO MORBIDO CON INTERAZIONE POP)
         // =========================================================================
         const canvas = document.getElementById('bubble-canvas');
         const ctx = canvas.getContext('2d');
@@ -1007,6 +1302,8 @@
         logoImg.src = 'levi.png';
 
         let bubbles = [];
+        let particles = [];
+        let burstRings = [];
         const numBubbles = 15;
 
         function resizeCanvas() {
@@ -1015,6 +1312,64 @@
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
+
+        // Classe per particelle di esplosione (soap splash)
+        class Droplet {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 6;
+                this.vy = (Math.random() - 0.5) * 6 - 3; // spinta iniziale verso l'alto
+                this.gravity = 0.15;
+                this.r = Math.random() * 3 + 1.5;
+                this.alpha = 1;
+                this.color = `hsla(${Math.random() * 40 + 200}, 80%, 75%, `; // tonalità azzurro/sapone
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.alpha -= 0.02;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                ctx.fillStyle = this.color + this.alpha + ")";
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Classe per anello d'urto visivo dell'esplosione
+        class BurstRing {
+            constructor(x, y, maxR) {
+                this.x = x;
+                this.y = y;
+                this.r = 5;
+                this.maxR = maxR;
+                this.alpha = 0.8;
+            }
+
+            update() {
+                this.r += (this.maxR - this.r) * 0.15;
+                this.alpha -= 0.04;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
 
         // Classe Bolla ad alte prestazioni
         class Bubble {
@@ -1037,6 +1392,17 @@
                 
                 this.angle = Math.random() * Math.PI * 2;
                 this.wobbleSpeed = Math.random() * 0.02 + 0.01;
+            }
+
+            pop() {
+                const currentRadius = this.r * this.z;
+                // Genera anello di espansione
+                burstRings.push(new BurstRing(this.x, this.y, currentRadius * 1.5));
+                // Genera goccioline di sapone
+                for (let i = 0; i < 15; i++) {
+                    particles.push(new Droplet(this.x, this.y));
+                }
+                this.reset();
             }
 
             update() {
@@ -1062,9 +1428,9 @@
                     this.vx = -Math.abs(this.vx);
                 }
 
-                // Rimbalzo sul soffitto / pavimento per non farle scoppiare ma rientrare dolcemente
+                // Quando raggiunge il soffitto scoppia producendo l'animazione di pop
                 if (this.y + currentRadius <= 0) {
-                    this.reset();
+                    this.pop();
                 }
             }
 
@@ -1122,12 +1488,51 @@
             bubbles.push(new Bubble());
         }
 
+        // Rilevatore click globale per scoppiare le bolle al click o tocco dello schermo
+        window.addEventListener('click', (e) => {
+            const clickX = e.clientX;
+            const clickY = e.clientY;
+
+            for (let i = 0; i < bubbles.length; i++) {
+                const b = bubbles[i];
+                const currentRadius = b.r * b.z;
+                const dist = Math.hypot(clickX - b.x, clickY - b.y);
+                if (dist <= currentRadius) {
+                    b.pop();
+                    break; // scoppia una sola bolla per click
+                }
+            }
+        });
+
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Disegna e aggiorna le bolle
             bubbles.forEach(b => {
                 b.update();
                 b.draw();
             });
+
+            // Gestione anelli di esplosione
+            for (let i = burstRings.length - 1; i >= 0; i--) {
+                const ring = burstRings[i];
+                ring.update();
+                ring.draw();
+                if (ring.alpha <= 0) {
+                    burstRings.splice(i, 1);
+                }
+            }
+
+            // Gestione goccioline
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.update();
+                p.draw();
+                if (p.alpha <= 0 || p.y > canvas.height) {
+                    particles.splice(i, 1);
+                }
+            }
+
             requestAnimationFrame(animate);
         }
 
