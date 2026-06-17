@@ -771,7 +771,7 @@
         // Accesso Docente
         function loginTeacher() {
             const pwd = document.getElementById('teacher-password').value;
-            if (pwd === "a quale la") {
+            if (pwd.toLowerCase() === "docente") {
                 document.getElementById('teacher-password').value = '';
                 document.getElementById('login-error').classList.add('hidden');
                 showView('view-teacher-dashboard');
