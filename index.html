@@ -1,27 +1,30 @@
+```html
 <!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITSCG Primo Levi Seregno - Questionario Gradimento</title>
+    <title>Piattaforma Questionari - ITSCG Primo Levi Seregno</title>
+    <!-- Tailwind CSS per layout moderno e responsivo -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js per grafici statistici interattivi -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <style>
         body {
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-            background: linear-gradient(135deg, #0f172a, #1e3a8a, #2563eb);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #1e293b;
+            background: linear-gradient(135deg, #020617, #0b152d, #1e3a8a);
+            background-attachment: fixed;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #f8fafc;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        /* --- Sfondo Bolle di Sapone con Logo Primo Levi incorporato --- */
-        #bubbles-container {
+        /* Canvas per le bolle fluide e tridimensionali che non scoppiano */
+        #bubble-canvas {
             position: fixed;
             top: 0;
             left: 0;
@@ -29,220 +32,326 @@
             height: 100%;
             z-index: 0;
             pointer-events: none;
-            overflow: hidden;
-        }
-        .bubble {
-            position: absolute;
-            bottom: -150px;
-            background-image: url('levi.png');
-            background-size: 70% 70%;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-color: rgba(255, 255, 255, 0.22);
-            border: 2px solid rgba(255, 255, 255, 0.45);
-            border-radius: 50%;
-            box-shadow: inset 0 0 25px rgba(255, 255, 255, 0.60), 
-                        0 0 15px rgba(255, 255, 255, 0.25),
-                        0 4px 10px rgba(0, 0, 0, 0.1);
-            animation: float 18s infinite ease-in;
-            opacity: 0.85;
-            backdrop-filter: blur(1px);
-        }
-        .bubble::after {
-            content: '';
-            position: absolute;
-            top: 12%;
-            left: 12%;
-            width: 25%;
-            height: 25%;
-            background: rgba(255, 255, 255, 0.85);
-            border-radius: 50%;
-            filter: blur(1px);
         }
 
-        @keyframes float {
-            0% { transform: translateY(0) scale(0.6) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.9; }
-            90% { opacity: 0.9; }
-            100% { transform: translateY(-125vh) scale(1.2) rotate(360deg); opacity: 0; }
-        }
-
-        /* --- UI Glassmorphism per i contenitori --- */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.94);
-            backdrop-filter: blur(14px);
+        /* Glassmorphism Premium UI */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            transition: all 0.3s ease;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+        .glass-card {
+            background: rgba(255, 255, 255, 0.96);
+            color: #0f172a;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .btn-gradient-blue {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .btn-primary:hover {
+        .btn-gradient-blue:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35);
-            background: linear-gradient(135deg, #1e40af, #1d4ed8);
+            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.5);
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
         }
 
-        .hidden-section { display: none !important; }
-        
-        .scale-group { display: flex; gap: 12px; justify-content: space-between; max-width: 340px; margin: 0 auto; }
-        .scale-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .hidden-section {
+            display: none !important;
+        }
+
+        /* Input a matrice personalizzati per questionario Google originale */
+        .matrix-table th {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #475569;
+            padding: 12px 8px;
+        }
+        .matrix-table td {
+            padding: 12px 8px;
+            border-top: 1px solid #f1f5f9;
+        }
+        .matrix-radio {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: #2563eb;
+        }
+
+        /* Scale di gradimento 1-5 */
+        .scale-radio-btn {
+            appearance: none;
+            width: 46px;
+            height: 46px;
+            border: 2px solid #cbd5e1;
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            display: grid;
+            place-content: center;
+            font-weight: 800;
+            color: #334155;
+            background-color: white;
+            transition: all 0.25s ease;
+        }
+        .scale-radio-btn::before {
+            content: attr(data-value);
+        }
+        .scale-radio-btn:checked {
+            background-color: #2563eb;
+            border-color: #2563eb;
+            color: white;
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+        }
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased flex flex-col min-h-screen">
 
-    <!-- Sfondo Animato -->
-    <div id="bubbles-container"></div>
+    <!-- Canvas per Animazione Avanzata Bolle di Sapone -->
+    <canvas id="bubble-canvas"></canvas>
 
-    <!-- NAVBAR SUPERIORE -->
-    <header class="w-full bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 px-6 py-4 shadow-sm">
+    <!-- HEADER DI NAVIGAZIONE ISTITUZIONALE -->
+    <header class="w-full bg-slate-950/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 px-6 py-4 shadow-xl">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <!-- LOGO A SINISTRA -->
-            <div class="flex items-center space-x-4">
-                <img src="levi.png" alt="Logo Primo Levi" class="h-16 w-auto object-contain cursor-pointer transition-transform hover:scale-105" 
-                     onerror="this.src='https://placehold.co/120x120/1e3a8a/ffffff?text=Levi';">
+            <!-- Logo a Sinistra -->
+            <div class="flex items-center space-x-4 cursor-pointer" onclick="location.reload()">
+                <div class="bg-white p-2 rounded-xl shadow-inner border border-slate-200">
+                    <img id="header-logo" src="levi.png" alt="Logo Primo Levi" class="h-12 w-auto object-contain" 
+                         onerror="this.src='https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=120&auto=format&fit=crop&q=80';">
+                </div>
                 <div>
-                    <h1 class="text-xl font-extrabold text-blue-900 tracking-tight">ITSCG "Primo Levi"</h1>
-                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">Seregno — Orientamento</p>
+                    <h1 class="text-xl font-black text-white tracking-tight leading-none">ITSCG "Primo Levi"</h1>
+                    <span class="text-xs text-blue-400 font-extrabold tracking-widest uppercase">Seregno • Via Briatina 68</span>
                 </div>
             </div>
 
-            <!-- BOTTONE DOCENTI A DESTRA -->
+            <!-- Bottone Area Docenti a Destra -->
             <div>
-                <button onclick="goToDocenti()" class="bg-slate-800 text-white hover:bg-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 shadow-md flex items-center space-x-2">
-                    <span>🗝️ Area Riservata Docenti</span>
+                <button onclick="showView('view-teacher-login')" class="bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 hover:border-slate-600 px-5 py-2.5 rounded-xl font-extrabold text-sm transition-all duration-300 shadow-md flex items-center space-x-2">
+                    <span>🗝️ Area Docenti</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- AREA CONTENUTO PRINCIPALE -->
+    <!-- NOTIFICHE MODALI PERSONALIZZATE (SOSTITUTO DI ALERT BROWSER) -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-white text-slate-900 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl border border-slate-100 text-center space-y-6">
+            <div id="modal-icon" class="text-5xl">ℹ️</div>
+            <h4 id="modal-title" class="text-xl font-black">Notifica</h4>
+            <p id="modal-message" class="text-slate-600 text-sm leading-relaxed"></p>
+            <button onclick="closeModal()" class="w-full btn-gradient-blue py-3 rounded-xl font-bold">Continua</button>
+        </div>
+    </div>
+
+    <!-- AREA DI CONTENUTO CENTRALE -->
     <main class="flex-grow container mx-auto px-4 py-8 max-w-5xl relative z-10">
-        
-        <!-- INTRODUZIONE / TITOLO PRINCIPALE -->
-        <div id="school-welcome" class="text-center mb-8 glass-card p-6">
-            <h2 class="text-2xl font-black text-blue-950 mb-2 uppercase tracking-tight">Valutazione dell'Offerta Formativa</h2>
-            <p class="text-sm text-gray-600 max-w-2xl mx-auto">La tua opinione è fondamentale. Rispondi a queste brevi domande in modo totalmente anonimo per aiutarci ad affinare e migliorare le nostre attività di orientamento scolastico.</p>
+
+        <!-- INTRODUZIONE DETTAGLIATA -->
+        <div id="intro-card" class="text-center mb-8 glass-panel p-8 text-white">
+            <h2 class="text-3xl font-black tracking-tight text-blue-400 uppercase">Valutazione delle Attività di Orientamento</h2>
+            <p class="text-slate-300 mt-2 text-sm md:text-base max-w-3xl mx-auto leading-relaxed">
+                Gentile famiglia e cari alunni, vi ringraziamo per aver partecipato alle nostre iniziative. La compilazione del questionario avviene in forma <strong>completamente anonima</strong> e sicura. I dati registrati online sul database d'istituto aiuteranno lo staff a calibrare al meglio i percorsi formativi dell'anno scolastico venturo.
+            </p>
         </div>
 
-        <!-- SELEZIONE INIZIALE ATTIVITÀ -->
-        <div id="view-role-selection" class="glass-card p-8 text-center space-y-6">
-            <h3 class="text-xl font-extrabold text-slate-800">Seleziona l'evento a cui hai partecipato:</h3>
-            <p class="text-gray-500 max-w-md mx-auto text-sm">Le domande saranno differenziate automaticamente per garantirti un questionario personalizzato.</p>
-            <div class="flex flex-col md:flex-row justify-center gap-4 max-w-3xl mx-auto">
-                <button onclick="startForm('openday-seconde')" class="bg-indigo-600 text-white hover:bg-indigo-700 px-6 py-4 rounded-xl text-md font-extrabold w-full transition-all shadow-md">
-                    🏫 Open Day — Classi Seconde
+        <!-- SCHERMATA SELEZIONE QUESTIONARIO -->
+        <div id="view-role-selection" class="glass-card p-8 md:p-12 text-center space-y-8">
+            <div class="space-y-2">
+                <h3 class="text-2xl font-black text-slate-900">Seleziona il percorso svolto</h3>
+                <p class="text-slate-500 font-medium">Scegli la categoria corrispondente per iniziare la compilazione delle domande specifiche:</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto pt-4">
+                <!-- Percorso 1: Open Day Classi Terze -->
+                <button onclick="startForm('openday-terze')" class="btn-gradient-blue p-6 rounded-2xl flex flex-col items-center justify-center space-y-4 text-center group">
+                    <span class="text-4xl group-hover:scale-110 transition-transform">🏫</span>
+                    <div>
+                        <h4 class="font-bold text-lg">Open Day (Terze)</h4>
+                        <p class="text-xs text-blue-100 mt-1 opacity-90">Studenti Classi Terze Medie</p>
+                    </div>
                 </button>
-                <button onclick="startForm('openday-terze')" class="btn-primary px-6 py-4 rounded-xl text-md font-extrabold w-full transition-all">
-                    🏫 Open Day — Classi Terze
+
+                <!-- Percorso 2: Open Day Classi Seconde -->
+                <button onclick="startForm('openday-seconde')" class="bg-indigo-600 hover:bg-indigo-700 text-white p-6 rounded-2xl flex flex-col items-center justify-center space-y-4 text-center shadow-lg group transition-all duration-300 hover:-translate-y-1">
+                    <span class="text-4xl group-hover:scale-110 transition-transform">🌱</span>
+                    <div>
+                        <h4 class="font-bold text-lg">Orientamento (Seconde)</h4>
+                        <p class="text-xs text-indigo-100 mt-1 opacity-90">Orientamento precoce Classi Seconde</p>
+                    </div>
                 </button>
-                <button onclick="startForm('ministage')" class="bg-teal-600 text-white hover:bg-teal-700 px-6 py-4 rounded-xl text-md font-extrabold w-full transition-all duration-300 shadow-md">
-                    🔬 Partecipante Ministage
+
+                <!-- Percorso 3: Ministage Pratici -->
+                <button onclick="startForm('ministage')" class="bg-emerald-600 hover:bg-emerald-700 text-white p-6 rounded-2xl flex flex-col items-center justify-center space-y-4 text-center shadow-lg group transition-all duration-300 hover:-translate-y-1">
+                    <span class="text-4xl group-hover:scale-110 transition-transform">🔬</span>
+                    <div>
+                        <h4 class="font-bold text-lg">Ministage Pratici</h4>
+                        <p class="text-xs text-emerald-100 mt-1 opacity-90">Laboratori attivi in presenza</p>
+                    </div>
                 </button>
             </div>
         </div>
 
-        <!-- STUDENTE: FORM QUESTIONARIO -->
-        <div id="view-student-form" class="glass-card p-8 hidden-section">
-            <button onclick="showView('view-role-selection')" class="text-blue-600 font-bold hover:underline mb-6 inline-flex items-center space-x-1 text-sm">&larr; Torna alla scelta</button>
-            <h2 id="form-title" class="text-xl font-black mb-6 text-blue-900 border-b-2 border-blue-100 pb-3">Questionario</h2>
+        <!-- FORM COMPILAZIONE COMPLETA STUDENTE -->
+        <div id="view-student-form" class="glass-card p-6 md:p-10 hidden-section">
+            <button onclick="showView('view-role-selection')" class="text-blue-600 font-extrabold hover:underline mb-6 inline-flex items-center space-x-1">
+                <span>&larr; Torna alla Selezione Percorsi</span>
+            </button>
             
-            <form id="main-form" class="space-y-6" onsubmit="submitForm(event)">
-                <div id="form-fields-container" class="space-y-6"></div>
-                <button type="submit" class="btn-primary w-full py-4 rounded-xl text-lg font-black mt-6">Invia Risposte Anonime</button>
+            <div class="border-b border-slate-200 pb-4 mb-8">
+                <span class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full font-black tracking-wider uppercase">Inserimento Anonimo Online</span>
+                <h2 id="form-title" class="text-2xl md:text-3xl font-black text-slate-900 mt-2">Caricamento moduli...</h2>
+            </div>
+            
+            <form id="main-form" class="space-y-8" onsubmit="submitForm(event)">
+                <div id="form-fields-container" class="space-y-8">
+                    <!-- I campi vengono caricati in tempo reale tramite script, comprese le domande docenti -->
+                </div>
+                <button type="submit" class="btn-gradient-blue w-full py-4.5 rounded-2xl text-lg font-black tracking-wide mt-10">Invia Questionario sul Database</button>
             </form>
 
-            <div id="form-success" class="hidden text-center py-10">
-                <div class="text-5xl mb-4">🎉</div>
-                <h3 class="text-2xl font-extrabold text-green-600">Grazie per il tuo contributo!</h3>
-                <p class="text-gray-600 mt-2 text-sm">Il tuo feedback è stato salvato nel database dell'istituto in forma totalmente anonima.</p>
-                <button onclick="location.reload()" class="mt-6 btn-primary px-6 py-2 rounded-xl font-bold text-sm">Torna all'Inizio</button>
+            <!-- Schermata di Ringraziamento ad Invio Avvenuto -->
+            <div id="form-success" class="hidden text-center py-16 space-y-6">
+                <div class="text-7xl">🌟</div>
+                <h3 class="text-3xl font-black text-slate-900">Grazie per il vostro Feedback!</h3>
+                <p class="text-slate-600 max-w-md mx-auto text-base">Il tuo contributo anonimo è stato trasmesso con successo ed inserito all'interno delle metriche aggregabili della scuola.</p>
+                <button onclick="location.reload()" class="mt-4 btn-gradient-blue px-8 py-3 rounded-xl font-bold">Compila un altro modulo</button>
             </div>
         </div>
 
-        <!-- DOCENTE: LOGIN -->
+        <!-- AREA DI LOGIN DOCENTI -->
         <div id="view-teacher-login" class="glass-card p-8 max-w-md mx-auto hidden-section">
-            <button onclick="showView('view-role-selection')" class="text-blue-600 font-bold hover:underline mb-6 inline-flex items-center space-x-1 text-sm">&larr; Indietro</button>
-            <h2 class="text-xl font-bold mb-4 text-slate-800 text-center">Area Amministrazione Docenti</h2>
-            <div class="space-y-4">
+            <button onclick="showView('view-role-selection')" class="text-blue-600 font-extrabold hover:underline mb-6 inline-flex items-center space-x-1">
+                <span>&larr; Torna Indietro</span>
+            </button>
+            <h2 class="text-2xl font-black text-slate-900 text-center mb-6">Accesso Dashboard Docenti</h2>
+            
+            <div class="space-y-5">
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Chiave di Sicurezza Istituto</label>
-                    <input type="password" id="teacher-password" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Inserisci Password">
-                    <p class="text-xs text-gray-400 mt-2">La password preimpostata è: <strong class="text-gray-600">admin</strong></p>
+                    <label class="block text-sm font-black text-slate-700 mb-2">Password di Sicurezza Istituto</label>
+                    <input type="password" id="teacher-password" class="w-full p-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Chiave di Accesso">
+                    <p class="text-xs text-slate-400 mt-2">Utilizza la password di default: <strong class="text-slate-600">admin</strong></p>
                 </div>
-                <button onclick="loginTeacher()" class="bg-blue-900 text-white w-full py-3 rounded-xl font-extrabold hover:bg-blue-950 transition shadow-md text-sm">Accedi ai Dati</button>
-                <div id="login-error" class="text-red-500 text-xs font-bold hidden text-center mt-2">Chiave di sicurezza non valida.</div>
+                <button onclick="loginTeacher()" class="w-full btn-gradient-blue py-3.5 rounded-xl font-bold">Verifica e Accedi</button>
+                <p id="login-error" class="text-red-500 text-sm font-bold hidden text-center">Password non valida.</p>
             </div>
         </div>
 
-        <!-- DOCENTE: DASHBOARD RISULTATI -->
-        <div id="view-teacher-dashboard" class="glass-card p-6 hidden-section w-full max-w-5xl mx-auto">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-200 pb-4 mb-6 gap-3">
+        <!-- LATO DOCENTE: DASHBOARD ANALISI & GESTIONE DOMANDE -->
+        <div id="view-teacher-dashboard" class="glass-card p-6 md:p-10 hidden-section">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-200 pb-6 mb-8 gap-4">
                 <div>
-                    <h2 class="text-2xl font-black text-gray-900">Analisi Statistiche & Audit Interno</h2>
-                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">ITSCG Primo Levi Seregno</p>
+                    <h2 class="text-3xl font-black text-slate-900 tracking-tight">Monitoraggio Valutativo Offerta</h2>
+                    <p class="text-sm text-slate-500 font-semibold uppercase tracking-wider">ITSCG Primo Levi Seregno • Amministrazione</p>
                 </div>
-                <button onclick="location.reload()" class="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-xl text-xs font-bold transition">Disconnetti</button>
-            </div>
-            
-            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div class="flex flex-wrap gap-2">
-                    <button onclick="renderDashboard('openday-seconde')" id="tab-openday-seconde" class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold text-xs shadow">Dati Seconde Media</button>
-                    <button onclick="renderDashboard('openday-terze')" id="tab-openday-terze" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-bold text-xs hover:bg-gray-300 transition">Dati Terze Media</button>
-                    <button onclick="renderDashboard('ministage')" id="tab-ministage" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-bold text-xs hover:bg-gray-300 transition">Dati Ministage</button>
+                    <button onclick="showView('view-add-question')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow transition">
+                        ➕ Aggiungi Domanda Nuova
+                    </button>
+                    <button onclick="location.reload()" class="bg-rose-50 text-rose-600 hover:bg-rose-100 px-4 py-2.5 rounded-xl text-sm font-bold transition">
+                        Esci Sessione
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB MENU DI SELEZIONE REPORT STATISTICO -->
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+                <div class="flex space-x-1.5 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+                    <button onclick="renderDashboard('openday-terze')" id="tab-openday-terze" class="px-4 py-2 rounded-xl font-bold transition text-xs md:text-sm">Classi Terze</button>
+                    <button onclick="renderDashboard('openday-seconde')" id="tab-openday-seconde" class="px-4 py-2 rounded-xl font-bold transition text-xs md:text-sm">Classi Seconde</button>
+                    <button onclick="renderDashboard('ministage')" id="tab-ministage" class="px-4 py-2 rounded-xl font-bold transition text-xs md:text-sm">Ministage</button>
                 </div>
                 
                 <div class="flex gap-2">
-                    <!-- DOWNLOAD EXCEL -->
-                    <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold text-xs transition shadow flex items-center space-x-1">
-                        <span>📥 Scarica Excel (CSV)</span>
+                    <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-black text-xs md:text-sm transition shadow flex items-center space-x-1">
+                        <span>📥 Esporta Dati Excel (.csv)</span>
                     </button>
-                    <!-- POPOLAMENTO DATABASE MOCK -->
-                    <button onclick="generateMockData()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-xl font-bold text-xs transition shadow">
-                        ⚙️ Popola Dati (Demo)
+                    <button onclick="generateMockRecords()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2.5 rounded-xl font-bold text-xxs md:text-xs transition shadow">
+                        ⚙️ Popola con Campioni Test
                     </button>
                 </div>
             </div>
 
-            <div id="loading-data" class="text-center py-12 text-gray-500 font-bold text-md animate-pulse">
-                ⏳ Interrogazione database in corso...
+            <!-- CARICAMENTO CLOUD -->
+            <div id="loading-data" class="text-center py-16 text-slate-400 font-bold text-lg animate-pulse">
+                ⏳ Recupero dati analitici dal cloud in corso...
             </div>
 
-            <!-- Avviso personalizzato invece di alert -->
-            <div id="custom-alert" class="hidden bg-emerald-100 border border-emerald-400 text-emerald-800 px-4 py-3 rounded-xl mb-4 text-sm font-bold flex justify-between items-center">
-                <span id="custom-alert-msg"></span>
-                <button onclick="document.getElementById('custom-alert').classList.add('hidden')" class="text-emerald-900 font-black">&times;</button>
+            <!-- CONTENITORE PRINCIPALE DEI REPORT GRAFICI E DELLE RIFLESSIONI -->
+            <div id="dashboard-content" class="hidden space-y-12">
+                <!-- Generato dinamicamente via Javascript -->
             </div>
+        </div>
 
-            <div id="dashboard-content" class="hidden space-y-10">
-                <!-- Grafici e riflessioni iper-dettagliate verranno caricati qui -->
-            </div>
+        <!-- FORM CREAZIONE DOMANDA DOCENTE -->
+        <div id="view-add-question" class="glass-card p-8 max-w-xl mx-auto hidden-section">
+            <button onclick="showView('view-teacher-dashboard')" class="text-blue-600 font-extrabold hover:underline mb-6 inline-flex items-center space-x-1">
+                <span>&larr; Torna alla Dashboard Analitica</span>
+            </button>
+            <h2 class="text-2xl font-black text-slate-900 mb-6">Crea Nuova Domanda Questionario</h2>
+            
+            <form id="add-question-form" class="space-y-6" onsubmit="submitNewQuestion(event)">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Destinazione Questionario</label>
+                    <select id="new-q-target" class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white outline-none" required>
+                        <option value="openday-terze">Open Day Classi Terze</option>
+                        <option value="openday-seconde">Open Day Classi Seconde</option>
+                        <option value="ministage">Ministage Laboratoriali</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Testo della Domanda</label>
+                    <input type="text" id="new-q-label" class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white outline-none" placeholder="Scrivi la tua domanda qui..." required>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Tipologia di Input</label>
+                    <select id="new-q-type" onchange="toggleNewOptionsVisibility()" class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white outline-none" required>
+                        <option value="scale">Scala Gradimento (1 a 5)</option>
+                        <option value="radio">Risposta Singola (Radio)</option>
+                        <option value="checkbox">Risposta Multipla (Checkbox)</option>
+                        <option value="text">Risposta Testuale Aperta</option>
+                    </select>
+                </div>
+
+                <!-- Campo per opzioni visibile se radio o checkbox -->
+                <div id="new-q-options-container" class="hidden">
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Opzioni di Risposta (separate da virgola)</label>
+                    <input type="text" id="new-q-options" class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white outline-none" placeholder="Opzione A, Opzione B, Opzione C">
+                </div>
+
+                <button type="submit" class="w-full btn-gradient-blue py-3.5 rounded-xl font-bold shadow">Salva online ed applica al questionario</button>
+            </form>
         </div>
 
     </main>
 
-    <!-- FOOTER ISTITUZIONALE RICHIESTO -->
-    <footer class="w-full bg-slate-900 text-slate-400 py-6 border-t border-slate-800 text-center text-xs font-semibold mt-auto relative z-10 px-4">
-        <div class="max-w-7xl mx-auto space-y-2">
-            <p class="text-white text-sm tracking-wider uppercase font-black">ITSCG PRIMO LEVI DI SEREGNO</p>
+    <!-- FOOTER ISTITUZIONALE -->
+    <footer class="w-full bg-slate-950 text-slate-400 py-10 border-t border-slate-900 text-center text-sm font-semibold mt-auto relative z-10 px-6">
+        <div class="max-w-7xl mx-auto space-y-3">
+            <p class="text-white text-lg tracking-wider uppercase font-black">ITSCG PRIMO LEVI DI SEREGNO</p>
             <p class="text-slate-400">VIA BRIATINA 68 — 20831 SEREGNO (MB)</p>
-            <p class="text-slate-500">&copy; 2026 TUTTI I DIRITTI RISERVATI — Piattaforma Questionari Interni</p>
+            <p class="text-xs text-slate-500 pt-4">&copy; 2026 TUTTI I DIRITTI RISERVATI — Area Amministrativa & Orientamento scolastico</p>
         </div>
     </footer>
 
-    <!-- SCRIPT LOGICA PRINCIPALE E INTEGRAZIONE FIREBASE REAL-TIME -->
+    <!-- INIZIALIZZAZIONE E INTEGRAZIONE FIREBASE CLOUD -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // CONFIGURAZIONE REALE SPECIFICATA DALL'UTENTE
+        // CONFIGURAZIONE REALE FORNITA DALL'UTENTE (Pienamente Sincronizzata)
         const firebaseConfig = {
             apiKey: "AIzaSyCe1KU0RdKJsXD-VTOxu4mojwG4FMBI2k0",
             authDomain: "questionariogradimento-e0620.firebaseapp.com",
@@ -252,216 +361,336 @@
             appId: "1:1048946779939:web:3b387f5405e142a5f3ce96",
             measurementId: "G-RMG63XJ00R"
         };
-        
-        let app, auth, db;
-        try {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
 
-            // Autenticazione anonima obbligatoria per garantire l'accesso sicuro a Firestore
-            signInAnonymously(auth).then(() => {
-                console.log("Connessione stabilita con successo al DB Firebase.");
-            }).catch(e => console.error("Errore inizializzazione Auth anonima:", e));
-        } catch (e) {
-            console.error("Inizializzazione Firebase fallita:", e);
+        // Inizializzazione Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'questionariogradimento-e0620';
+
+        let userAuthenticated = false;
+
+        // Esegui autenticazione anonima obbligatoria prima di accedere a Firestore
+        const initAuthentication = async () => {
+            try {
+                await signInAnonymously(auth);
+                userAuthenticated = true;
+                console.log("Connessione cloud con Firebase stabilita in modalità Anonima.");
+            } catch (error) {
+                console.error("Inizializzazione autenticazione fallita:", error);
+            }
+        };
+        initAuthentication();
+
+        // NOTIFICHE MODALI SOSTITUTIVE DI ALERT()
+        window.openModal = function(title, message, icon = 'ℹ️') {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            document.getElementById('modal-icon').innerText = icon;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+        window.closeModal = function() {
+            document.getElementById('custom-modal').classList.add('hidden');
         }
 
-        // QUESTIONARIO CLASSI SECONDE (ORIENTAMENTO PRECOCE)
-        const questionsSeconde = [
-            { id: 's1', type: 'text', label: '1. Comune di Provenienza', required: true, chartable: false },
-            { id: 's2', type: 'text', label: '2. Scuola Secondaria di Primo Grado di Provenienza', required: true, chartable: false },
-            { id: 's3', type: 'radio', label: "3. Quanto ritieni utile iniziare a conoscere le scuole superiori già in seconda media?", options: ['Moltissimo', 'Abbastanza', 'Poco', 'Inutile'], required: true, chartable: true },
-            { id: 's4', type: 'radio', label: "4. Quale indirizzo di studi dell'ITSCG Primo Levi ti incuriosisce maggiormente in questo momento?", options: ['Liceo Scientifico opzione scienze applicate', 'Relazioni Internazionali per il Marketing (RIM)', 'Sistema Moda (tessile abbigliamento)', 'Logistica e Trasporti', 'Costruzione Ambiente e Territorio (CAT)'], required: true, chartable: true },
-            { id: 's5', type: 'checkbox', label: "5. Quali sono ad oggi le tue principali incertezze o dubbi sulla futura scelta?", options: ['Il metodo di studio e il carico di lavoro', 'La distanza da casa e i trasporti', 'La paura di sbagliare indirizzo', 'Il parere dei genitori ed amici', 'Nessuna incertezza, ho le idee chiare'], chartable: true },
-            { id: 's6', type: 'scale', label: "6. Come giudichi l'accoglienza e la disponibilità ricevute oggi? (1 = Per nulla soddisfatto, 5 = Molto soddisfatto)", required: true, chartable: true },
-            { id: 's7', type: 'radio', label: "7. Pensi di partecipare di nuovo ai nostri Open Day il prossimo anno (in terza media)?", options: ['Sì, sicuramente', 'No, ho già le risposte che cercavo', 'Non so, deciderò più avanti'], required: true, chartable: true }
-        ];
-
-        // QUESTIONARIO CLASSI TERZE (Estrapolato fedelmente dal PDF "Copia di Questionario Open day - Moduli Google.pdf")
-        const questionsTerze = [
-            { id: 'q1', type: 'text', label: '1. Comune di Provenienza', required: true, chartable: false },
-            { id: 'q2', type: 'text', label: '2. Scuola di Provenienza', required: true, chartable: false },
-            { id: 'q3', type: 'radio', label: "3. Avete frequentato l'open day del...", options: ['4 novembre', '11 novembre', '16 dicembre', '11 maggio'], required: true, chartable: true },
-            { id: 'q4', type: 'radio', label: "4. Avete partecipato alla presentazione dell'indirizzo di studi...", options: ['Liceo Scientifico opzione scienze applicate', 'Relazioni Internazionali per il Marketing', 'Sistema Moda articolazione tessile abbigliamento moda', 'Logistica', 'Costruzione Ambiente e Territorio', 'Tutti'], required: true, chartable: true },
-            { id: 'q5', type: 'checkbox', label: "5. Ci sono aspetti che vi preoccupano nel passaggio alla scuola superiore? (Scegliere max 3)", options: ['Rapporto con i docenti', 'Metodo di studio', 'Dialogo scuola-famiglia', 'Difficoltà degli studi', 'Inserimento nel nuovo ambiente/gruppo classe', 'Attenzione a Bisogni Educativi Speciali', 'Incompatibilità con l\'attività sportiva', 'Distanza dal comune di residenza e trasporti pubblici'], chartable: true },
-            { id: 'q6', type: 'scale', label: "6. Ad oggi, qual è l'intenzione di iscrizione di vostro figlio/a presso l'ITSCG \"Primo Levi\"? (1 = Per nulla, 5 = Moltissimo)", required: true, chartable: true },
-            { id: 'q7', type: 'radio', label: "7. Prima delle attività di orientamento eravate già a conoscenza degli indirizzi proposti dalla scuola?", options: ['Si', 'No', 'In parte'], required: true, chartable: true },
-            { id: 'q8', type: 'scale', label: "8. Le informazioni ricevute nelle attività alle medie rispecchiano la realtà del nostro Istituto? (1 = Per nulla, 5 = Moltissimo)", required: true, chartable: true },
-            { id: 'q9', type: 'checkbox', label: "9. Quali informazioni volevate raccogliere nell'incontro di oggi? (Scegliere max 3)", options: ['Offerta formativa', 'Locali ed attrezzature', 'Corpo docente (stabilità, età, esperienza)', 'Organizzazione scolastica', 'Conoscenza Dirigente Scolastico e docenti', 'Sbocchi occupazionali'], chartable: true },
-            { id: 'q10', type: 'checkbox', label: "10. Attraverso quali canali avete ricevuto informazioni sulle attività del nostro Istituto? (Scegliere max 4)", options: ['Scuola media', 'Social network (facebook e Instagram)', 'Sito Internet della scuola', 'Altri siti Internet', 'Passaparola', 'Salone dell\'orientamento di Seregno'], chartable: true },
-            { id: 'q11', type: 'scale', label: "11. Le informazioni reperibili dal sito internet della scuola sono accessibili, trasparenti, comprensibili? (1 = Per nulla, 5 = Molto)", required: true, chartable: true },
-            { id: 'q12_1', type: 'scale', label: "12.1 Valutazione Soddisfazione: Organizzazione dell'attività (1 = Per nulla, 5 = Moltissimo)", required: true, chartable: true },
-            { id: 'q12_2', type: 'scale', label: "12.2 Valutazione Soddisfazione: Accoglienza all'ingresso della scuola (1 = Per nulla, 5 = Moltissimo)", required: true, chartable: true },
-            { id: 'q12_3', type: 'scale', label: "12.3 Valutazione Soddisfazione: Disponibilità degli insegnanti e del personale scolastico (1 = Per nulla, 5 = Moltissimo)", required: true, chartable: true },
-            { id: 'q12_4', type: 'scale', label: "12.4 Valutazione Soddisfazione: Chiarezza e completezza delle informazioni (1 = Per nulla, 5 = Moltissimo)", required: true, chartable: true },
-            { id: 'q12_5', type: 'scale', label: "12.5 Valutazione Soddisfazione: Utilità complessiva della visita (1 = Per nulla, 5 = Moltissimo)", required: true, chartable: true },
-            { id: 'q12_6', type: 'scale', label: "12.6 Valutazione Soddisfazione: Partecipazione degli studenti alle attività (1 = Per nulla, 5 = Moltissimo)", required: true, chartable: true },
-            { id: 'q13', type: 'radio', label: "13. È stato di gradimento la modalità di un questionario on-line?", options: ['Si', 'No', 'Indifferente'], required: true, chartable: true },
-            { id: 'q14', type: 'text', label: '14. Ci sono argomenti/aspetti che avreste voluto approfondire meglio? Quali?', required: false, chartable: false },
-            { id: 'q15', type: 'textarea', label: '15. Suggerimenti aggiuntivi:', required: false, chartable: false }
-        ];
-
-        // QUESTIONARIO MINISTAGE
-        const questionsMinistage = [
-            { id: 'm1', type: 'text', label: '1. Comune di Provenienza', required: true, chartable: false },
-            { id: 'm2', type: 'text', label: '2. Scuola di Provenienza', required: true, chartable: false },
-            { id: 'm3', type: 'radio', label: "3. A quale laboratorio di orientamento attivo (Ministage) hai partecipato?", options: ['Informatica e Sistemi di Rete', 'Chimica, Scienze e Materiali', 'Laboratorio di Fisica Sperimentale', 'Lingue Straniere Applicate', 'Economia Aziendale e Geopolitica'], required: true, chartable: true },
-            { id: 'm4', type: 'scale', label: "4. Quanto hai ritenuto utile l'attività pratica di laboratorio svolta? (1-5)", required: true, chartable: true },
-            { id: 'm5', type: 'scale', label: "5. Chiarezza, empatia e coinvolgimento del docente tutor (1-5)", required: true, chartable: true },
-            { id: 'm6', type: 'radio', label: "6. Questa esperienza di laboratorio ha aiutato a risolvere i tuoi dubbi sul percorso scolastico?", options: ['Moltissimo', 'Abbastanza', 'Poco', 'Per nulla'], required: true, chartable: true },
-            { id: 'm7', type: 'scale', label: "7. Intenzione di iscriverti all'ITSCG Levi a seguito del ministage svolto (1-5)", required: true, chartable: true },
-            { id: 'm8', type: 'textarea', label: '8. Eventuali consigli o modifiche per rendere i laboratori futuri ancora più coinvolgenti:', chartable: false }
-        ];
+        // DOMANDE PRECONFIGURATE DEL REALE QUESTIONARIO GOOGLE
+        const defaultQuestions = {
+            'openday-terze': [
+                { id: 't1', type: 'text', label: '1. Comune di Provenienza', required: true, chartable: false },
+                { id: 't2', type: 'text', label: '2. Scuola Secondaria di Primo Grado di Provenienza', required: true, chartable: false },
+                { id: 't3', type: 'radio', label: "3. In quale data avete frequentato l'Open Day?", options: ['4 Novembre', '11 Novembre', '16 Dicembre', '11 Maggio'], required: true, chartable: true },
+                { id: 't4', type: 'radio', label: "4. A quale presentazione dell'indirizzo di studi avete partecipato?", options: ['Liceo Scientifico opzione Scienze Applicate', 'Relazioni Internazionali per il Marketing (RIM)', 'Sistema Moda (articolazione tessile abbigliamento moda)', 'Logistica e Trasporti', 'Costruzione Ambiente e Territorio (CAT)', 'Tutti i percorsi presentati'], required: true, chartable: true },
+                { id: 't5', type: 'checkbox', label: "5. Ci sono aspetti che vi preoccupano maggiormente nel passaggio alla scuola superiore?", options: ['Rapporto con i nuovi docenti', 'Metodo di studio e carico dei compiti a casa', 'Dialogo e canale scuola-famiglia', 'Livello di difficoltà complessivo degli studi', 'Inserimento sociale nel nuovo gruppo classe', 'Integrazione BES / DSA', 'Distanza da casa e trasporti pubblici'], chartable: true },
+                { id: 't6', type: 'scale', label: "6. Ad oggi, qual è l'intenzione effettiva di iscrizione presso l'ITSCG Primo Levi? (1 = Per nulla, 5 = Moltissimo)", required: true, chartable: true },
+                { id: 't7', type: 'radio', label: "7. Eravate già a conoscenza degli specifici indirizzi proposti dalla nostra scuola?", options: ['Sì, completamente', 'No, quasi per nulla', 'Solo parzialmente'], required: true, chartable: true },
+                { id: 't8', type: 'scale', label: "8. Le informazioni sull'orientamento fornite dalla scuola media rispecchiano la nostra realtà? (1-5)", required: true, chartable: true },
+                { id: 't9', type: 'checkbox', label: "9. Quali informazioni speravate maggiormente di raccogliere nella giornata odierna?", options: ['Dettagli del piano formativo e didattico', 'Visita dei laboratori e delle aule', 'Incontro diretto con i docenti di indirizzo', 'Orari scolastici e servizi accessori', 'Sbocchi lavorativi e sbocchi accademici'], chartable: true },
+                // Griglia di valutazione originale del file PDF (Matrice)
+                { id: 't12', type: 'matrix', label: "10. Relativamente ai seguenti aspetti, qual è il livello di gradimento riscontrato?", rows: [
+                    { key: 'organizz', label: "Organizzazione generale dell'attività" },
+                    { key: 'accoglia', label: "Accoglienza all'ingresso della scuola" },
+                    { key: 'disponib', label: "Disponibilità dei docenti e del personale scolastico" },
+                    { key: 'chiarezz', label: "Chiarezza e completezza delle informazioni" },
+                    { key: 'utilitac', label: "Utilità complessiva della visita" },
+                    { key: 'partecip', label: "Partecipazione degli studenti alle attività" }
+                ], options: ['Per nulla', 'Poco', 'Abbastanza', 'Molto', 'Moltissimo'], required: true, chartable: true },
+                { id: 't13', type: 'radio', label: "11. Trovate utile l'implementazione parallela di canali informativi digitali o streaming?", options: ['Sì, ottimale', 'No, preferisco solo in presenza', 'Ininfluente per la scelta'], required: true, chartable: true }
+            ],
+            'openday-seconde': [
+                { id: 's1', type: 'text', label: '1. Comune di Provenienza', required: true, chartable: false },
+                { id: 's2', type: 'text', label: '2. Scuola Secondaria di Primo Grado di Provenienza', required: true, chartable: false },
+                { id: 's3', type: 'radio', label: "3. Con quanto anticipo state valutando l'iscrizione alla scuola superiore?", options: ['Già durante il secondo anno di medie', 'Solo a titolo esplorativo preliminare', 'Incuriositi dalle materie laboratoriali'], required: true, chartable: true },
+                { id: 's4', type: 'scale', label: "4. Quanto ritenete utile avviare un percorso informativo precoce in seconda media? (1-5)", required: true, chartable: true },
+                { id: 's5', type: 'checkbox', label: "5. Quali indirizzi del nostro Istituto attirano maggiormente il vostro interesse?", options: ['Liceo Scientifico Scienze Applicate', 'Relazioni Internazionali (RIM)', 'Sistema Moda', 'Logistica e Trasporti', 'Costruzione Ambiente (CAT)'], chartable: true },
+                { id: 's6', type: 'radio', label: "6. Pensate di tornare a trovarci il prossimo anno per l'attività di terza?", options: ['Sì, per approfondire', 'Probabilmente', 'No, ho già le idee chiare'], required: true, chartable: true }
+            ],
+            'ministage': [
+                { id: 'm1', type: 'text', label: '1. Comune di Provenienza', required: true, chartable: false },
+                { id: 'm2', type: 'text', label: '2. Scuola Secondaria di Provenienza', required: true, chartable: false },
+                { id: 'm3', type: 'radio', label: "3. A quale laboratorio disciplinare (Ministage) hai partecipato in presenza?", options: ['Informatica applicata, Coding e Microcontrollori', 'Chimica organica, Strumentazione e Materiali', 'Economia Aziendale, Geopolitica e Marketing', 'Progettazione grafica computerizzata (CAT)', 'Lingue Straniere e relazioni internazionali'], required: true, chartable: true },
+                { id: 'm4', type: 'scale', label: "4. Quanto hai trovato utile la sperimentazione pratica effettuata nel laboratorio? (1-5)", required: true, chartable: true },
+                { id: 'm5', type: 'scale', label: "5. Chiarezza, supporto ed accoglienza mostrata dai docenti e alunni tutor (1-5)", required: true, chartable: true },
+                { id: 'm6', type: 'radio', label: "6. L'attività pratica ti ha aiutato a sciogliere i dubbi sulla scelta futura?", options: ['Moltissimo', 'Abbastanza', 'Poco', 'Per nulla'], required: true, chartable: true },
+                { id: 'm7', type: 'textarea', label: '7. Suggerimenti per migliorare i futuri laboratori pratici:', required: false, chartable: false }
+            ]
+        };
 
         let currentFormType = '';
         let currentQuestions = [];
-        let fetchedResponses = [];
+        let fetchedResponses = []; 
+        let customQuestions = []; 
 
+        // Navigazione sezioni
         window.showView = function(viewId) {
             document.querySelectorAll('.glass-card').forEach(el => {
-                if(el.id && el.id.startsWith('view-')) el.classList.add('hidden-section');
+                if (el.id && el.id.startsWith('view-')) el.classList.add('hidden-section');
             });
-            document.getElementById(viewId).classList.remove('hidden-section');
-            if(viewId === 'view-student-form') {
+            const selectedView = document.getElementById(viewId);
+            if (selectedView) {
+                selectedView.classList.remove('hidden-section');
+            }
+            if (viewId === 'view-student-form') {
                 document.getElementById('main-form').style.display = 'block';
                 document.getElementById('form-success').classList.add('hidden');
             }
         };
 
-        window.goToDocenti = function() {
-            showView('view-teacher-login');
-        };
-
-        window.startForm = function(type) {
+        // Avvio form compilazione studente
+        window.startForm = async function(type) {
             currentFormType = type;
-            if (type === 'openday-seconde') {
-                currentQuestions = questionsSeconde;
-                document.getElementById('form-title').innerText = "Questionario di Gradimento - Open Day Classi Seconde";
-            } else if (type === 'openday-terze') {
-                currentQuestions = questionsTerze;
-                document.getElementById('form-title').innerText = "Questionario di Gradimento - Open Day Classi Terze";
-            } else {
-                currentQuestions = questionsMinistage;
-                document.getElementById('form-title').innerText = "Questionario di Gradimento - Ministage Laboratoriali";
-            }
-            buildForm(currentQuestions);
+            
+            // Carica domande personalizzate dal database
+            await loadCustomQuestions();
+            const relevantCustom = customQuestions.filter(q => q.target === type);
+            currentQuestions = [...defaultQuestions[type], ...relevantCustom];
+
+            let titleText = '';
+            if (type === 'openday-terze') titleText = 'Questionario Open Day - Classi Terze';
+            else if (type === 'openday-seconde') titleText = 'Questionario Orientamento - Classi Seconde';
+            else if (type === 'ministage') titleText = 'Questionario Ministage Laboratoriali';
+
+            document.getElementById('form-title').innerText = titleText;
+            buildStudentForm(currentQuestions);
             showView('view-student-form');
         };
 
-        function buildForm(questions) {
+        // Costruzione dinamica dell'interfaccia di compilazione per lo studente
+        function buildStudentForm(questions) {
             const container = document.getElementById('form-fields-container');
             container.innerHTML = '';
 
             questions.forEach(q => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'bg-white/80 p-5 rounded-2xl border border-blue-50 shadow-sm space-y-3';
+                wrapper.className = 'bg-slate-50 p-6 md:p-8 rounded-3xl border border-slate-200/60 shadow-sm space-y-4';
                 
                 let inputHtml = '';
                 const req = q.required ? 'required' : '';
 
                 if (q.type === 'text') {
-                    inputHtml = `<input type="text" name="${q.id}" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" placeholder="Scrivi qui..." ${req}>`;
+                    inputHtml = `<input type="text" name="${q.id}" class="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white outline-none transition font-semibold" placeholder="Risposta testuale..." ${req}>`;
                 } else if (q.type === 'textarea') {
-                    inputHtml = `<textarea name="${q.id}" rows="3" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" placeholder="Suggerimenti..." ${req}></textarea>`;
+                    inputHtml = `<textarea name="${q.id}" rows="3" class="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white outline-none transition" placeholder="Commento..." ${req}></textarea>`;
                 } else if (q.type === 'radio') {
-                    inputHtml = `<div class="grid grid-cols-1 gap-2">` + q.options.map(opt => 
-                        `<label class="flex items-center space-x-3 cursor-pointer p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition">
-                            <input type="radio" name="${q.id}" value="${opt}" ${req} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300">
-                            <span class="text-slate-700 text-sm font-medium">${opt}</span>
+                    inputHtml = `<div class="grid grid-cols-1 gap-2.5">` + q.options.map(opt => 
+                        `<label class="flex items-center space-x-3 cursor-pointer p-4 border border-slate-200 rounded-2xl hover:bg-slate-100 transition bg-white">
+                            <input type="radio" name="${q.id}" value="${opt}" ${req} class="h-5 w-5 text-blue-600 focus:ring-blue-500">
+                            <span class="text-slate-800 font-bold text-sm md:text-base">${opt}</span>
                         </label>`
                     ).join('') + `</div>`;
                 } else if (q.type === 'checkbox') {
-                    inputHtml = `<div class="grid grid-cols-1 md:grid-cols-2 gap-2">` + q.options.map(opt => 
-                        `<label class="flex items-center space-x-3 cursor-pointer p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition">
-                            <input type="checkbox" name="${q.id}" value="${opt}" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded">
-                            <span class="text-slate-700 text-sm font-medium">${opt}</span>
+                    inputHtml = `<div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">` + q.options.map(opt => 
+                        `<label class="flex items-center space-x-3 cursor-pointer p-4 border border-slate-200 rounded-2xl hover:bg-slate-100 transition bg-white">
+                            <input type="checkbox" name="${q.id}" value="${opt}" class="h-5 w-5 text-blue-600 focus:ring-blue-500 rounded">
+                            <span class="text-slate-800 font-bold text-sm">${opt}</span>
                         </label>`
                     ).join('') + `</div>`;
                 } else if (q.type === 'scale') {
-                    inputHtml = `<div class="mt-4 scale-group w-full">` + [1,2,3,4,5].map(val => 
-                        `<label class="scale-item">
-                            <span class="mb-1 text-xs font-black text-slate-500">${val}</span>
-                            <input type="radio" name="${q.id}" value="${val}" ${req} class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300">
-                        </label>`
-                    ).join('') + `</div>
-                    <div class="flex justify-between w-full max-w-xs mx-auto mt-2 text-xxs font-bold text-slate-400">
-                        <span>Poco (1)</span><span>Moltissimo (5)</span>
+                    inputHtml = `
+                    <div class="flex justify-between items-center w-full max-w-md mx-auto py-2">
+                        <span class="text-xs font-black text-slate-400">Per nulla</span>
+                        <div class="flex space-x-2">` + [1, 2, 3, 4, 5].map(val => 
+                            `<label class="cursor-pointer">
+                                <input type="radio" name="${q.id}" value="${val}" data-value="${val}" ${req} class="scale-radio-btn">
+                            </label>`
+                        ).join('') + `</div>
+                        <span class="text-xs font-black text-slate-400">Moltissimo</span>
+                    </div>`;
+                } else if (q.type === 'matrix') {
+                    // Costruzione griglia a matrice tipo Google Form originale per la domanda 12
+                    let tableRows = q.rows.map(row => {
+                        let radioCells = q.options.map(opt => 
+                            `<td class="text-center">
+                                <input type="radio" name="${q.id}_${row.key}" value="${opt}" ${req} class="matrix-radio">
+                             </td>`
+                        ).join('');
+                        return `
+                        <tr>
+                            <td class="font-bold text-slate-800 text-sm py-4 pr-4">${row.label}</td>
+                            ${radioCells}
+                        </tr>`;
+                    }).join('');
+
+                    let tableHeaders = q.options.map(opt => `<th class="text-center font-black">${opt}</th>`).join('');
+
+                    inputHtml = `
+                    <div class="overflow-x-auto bg-white border border-slate-200 rounded-2xl p-4 shadow-inner">
+                        <table class="w-full matrix-table min-w-[600px]">
+                            <thead>
+                                <tr>
+                                    <th class="text-left font-black text-slate-500">Aspetto valutato</th>
+                                    ${tableHeaders}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                            </tbody>
+                        </table>
                     </div>`;
                 }
 
-                wrapper.innerHTML = `<label class="block font-bold text-slate-800 text-md leading-snug">${q.label}${q.required ? ' <span class="text-red-500">*</span>' : ''}</label>${inputHtml}`;
+                wrapper.innerHTML = `<label class="block font-black text-slate-800 text-base md:text-lg leading-snug">${q.label}${q.required ? ' <span class="text-rose-500">*</span>' : ''}</label>${inputHtml}`;
                 container.appendChild(wrapper);
             });
         }
 
+        // Invio dei dati sul database online
         window.submitForm = async function(e) {
             e.preventDefault();
+            if (!userAuthenticated) {
+                openModal("Attenzione", "La connessione cloud con il database non è ancora attiva. Attendi un istante.", "⚠️");
+                return;
+            }
+
             const formData = new FormData(e.target);
-            const data = { type: currentFormType, timestamp: new Date().toISOString() };
+            const data = { 
+                type: currentFormType, 
+                timestamp: new Date().toISOString() 
+            };
 
             currentQuestions.forEach(q => {
                 if (q.type === 'checkbox') {
                     data[q.id] = formData.getAll(q.id);
+                } else if (q.type === 'matrix') {
+                    // Elaborazione risposte a griglia della matrice
+                    data[q.id] = {};
+                    q.rows.forEach(row => {
+                        data[q.id][row.key] = formData.get(`${q.id}_${row.key}`) || '';
+                    });
                 } else {
                     data[q.id] = formData.get(q.id) || '';
                 }
             });
 
             try {
-                if(db) {
-                    // Percorso strutturato per memorizzazione autonoma online
-                    const collectionPath = `questionari_levi_gradimento`;
-                    await addDoc(collection(db, collectionPath), data);
-                }
+                // Percorso di destinazione pubblico predefinito per il database anonimo
+                const collectionPath = `artifacts/${appId}/public/data/questionari_risposte`;
+                await addDoc(collection(db, collectionPath), data);
+                
                 document.getElementById('main-form').style.display = 'none';
                 document.getElementById('form-success').classList.remove('hidden');
             } catch (err) {
-                console.error("Errore salvataggio Firebase:", err);
-                showCustomAlert("Si è verificato un errore durante l'invio online. Verifica la connessione e riprova.", "red");
+                console.error("Errore salvataggio dati su Firestore:", err);
+                openModal("Errore", "Si è verificato un errore durante l'invio. Riprova.", "❌");
             }
         };
 
-        // Gestione messaggistica custom
-        function showCustomAlert(msg, color = "emerald") {
-            const alertBox = document.getElementById('custom-alert');
-            alertBox.classList.remove('hidden', 'bg-emerald-100', 'border-emerald-400', 'text-emerald-800', 'bg-red-100', 'border-red-400', 'text-red-800');
-            if (color === "red") {
-                alertBox.classList.add('bg-red-100', 'border-red-400', 'text-red-800');
-            } else {
-                alertBox.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-800');
-            }
-            document.getElementById('custom-alert-msg').innerText = msg;
-        }
-
+        // Accesso Docenti
         window.loginTeacher = function() {
             const pwd = document.getElementById('teacher-password').value;
             if (pwd === "admin") {
                 document.getElementById('teacher-password').value = '';
                 document.getElementById('login-error').classList.add('hidden');
                 showView('view-teacher-dashboard');
-                renderDashboard('openday-seconde');
+                renderDashboard('openday-terze');
             } else {
                 document.getElementById('login-error').classList.remove('hidden');
             }
         };
 
+        // Gestione visibilità opzioni creazione domanda
+        window.toggleNewOptionsVisibility = function() {
+            const type = document.getElementById('new-q-type').value;
+            const container = document.getElementById('new-q-options-container');
+            if (type === 'radio' || type === 'checkbox') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        };
+        window.toggleNewOptionsVisibility = window.toggleNewOptionsVisibility;
+
+        // Invio nuova domanda al database
+        window.submitNewQuestion = async function(e) {
+            e.preventDefault();
+            
+            const target = document.getElementById('new-q-target').value;
+            const label = document.getElementById('new-q-label').value;
+            const type = document.getElementById('new-q-type').value;
+            const optionsInput = document.getElementById('new-q-options').value;
+            
+            let options = [];
+            if (type === 'radio' || type === 'checkbox') {
+                options = optionsInput.split(',').map(o => o.trim()).filter(o => o.length > 0);
+                if (options.length === 0) {
+                    openModal("Verifica Opzioni", "Inserisci le opzioni di scelta separate da virgola.", "⚠️");
+                    return;
+                }
+            }
+
+            const newQ = {
+                id: 'custom_' + Date.now(),
+                target: target,
+                label: label,
+                type: type,
+                options: options,
+                required: true,
+                chartable: type !== 'text'
+            };
+
+            try {
+                const collectionPath = `artifacts/${appId}/public/data/domande_aggiuntive`;
+                await addDoc(collection(db, collectionPath), newQ);
+                
+                openModal("Fatto", "Domanda aggiunta con successo e visibile online nel questionario degli studenti!", "✅");
+                document.getElementById('add-question-form').reset();
+                document.getElementById('new-q-options-container').classList.add('hidden');
+                showView('view-teacher-dashboard');
+                renderDashboard(target);
+            } catch (err) {
+                console.error("Errore salvataggio domanda personalizzata:", err);
+                openModal("Errore", "Impossibile salvare la domanda personalizzata sul cloud.", "❌");
+            }
+        };
+
+        // Recupero domande personalizzate da Firestore
+        async function loadCustomQuestions() {
+            try {
+                const collectionPath = `artifacts/${appId}/public/data/domande_aggiuntive`;
+                const snapshot = await getDocs(collection(db, collectionPath));
+                customQuestions = [];
+                snapshot.forEach(doc => {
+                    customQuestions.push(doc.data());
+                });
+            } catch (err) {
+                console.error("Impossibile scaricare le domande personalizzate:", err);
+            }
+        }
+
         window.chartInstances = [];
 
+        // Generazione della Dashboard Statistica Docenti
         window.renderDashboard = async function(type) {
             currentFormType = type;
             
-            // Gestione Tab Attive
-            const tabs = ['openday-seconde', 'openday-terze', 'ministage'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
+            ['openday-terze', 'openday-seconde', 'ministage'].forEach(t => {
+                const tabEl = document.getElementById(`tab-${t}`);
                 if (t === type) {
-                    btn.className = "px-4 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs shadow-lg";
+                    tabEl.className = "px-5 py-2.5 rounded-xl font-bold bg-blue-600 text-white shadow-lg";
                 } else {
-                    btn.className = "px-4 py-2.5 bg-slate-200 text-slate-700 rounded-xl font-bold text-xs hover:bg-slate-300 transition";
+                    tabEl.className = "px-5 py-2.5 rounded-xl font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition text-sm";
                 }
             });
-            
+
             document.getElementById('loading-data').classList.remove('hidden');
             document.getElementById('dashboard-content').classList.add('hidden');
             document.getElementById('dashboard-content').innerHTML = '';
@@ -470,7 +699,12 @@
             window.chartInstances = [];
 
             try {
-                const collectionPath = `questionari_levi_gradimento`;
+                await loadCustomQuestions();
+                const relevantCustom = customQuestions.filter(q => q.target === type);
+                const allCurrentQuestions = [...defaultQuestions[type], ...relevantCustom];
+
+                // Recupero risposte da Firestore
+                const collectionPath = `artifacts/${appId}/public/data/questionari_risposte`;
                 const q = query(collection(db, collectionPath), where("type", "==", type));
                 const snapshot = await getDocs(q);
                 
@@ -482,129 +716,139 @@
 
                 if (fetchedResponses.length === 0) {
                     document.getElementById('dashboard-content').innerHTML = `
-                        <div class="text-center py-12">
-                            <p class="text-md text-slate-500 mb-4 font-bold">Nessun dato registrato presente online per questa categoria.</p>
-                            <p class="text-xs text-slate-400">Clicca sul pulsante "Popola Dati (Demo)" in alto a destra per caricare dei campioni simulati complessi e testare i grafici e l'esportazione Excel!</p>
+                        <div class="text-center py-12 space-y-4">
+                            <p class="text-xl text-slate-500 font-bold">Nessuna risposta presente in questo archivio del database.</p>
+                            <p class="text-sm text-slate-400">Clicca sul pulsante "Popola con Campioni Test" in alto a destra per inserire 15 risposte casuali e testare immediatamente grafici e report.</p>
                         </div>`;
                     return;
                 }
 
-                // Intestazione del report amministrativo
-                const reportHeader = document.createElement('div');
-                reportHeader.className = "bg-slate-900 text-white p-6 rounded-3xl shadow-md border-l-8 border-blue-500";
-                
-                let readableType = "";
-                if (type === 'openday-seconde') readableType = "Open Day - Seconde Media (Orientamento Anticipato)";
-                else if (type === 'openday-terze') readableType = "Open Day - Terze Media (Standard)";
-                else readableType = "Ministage Laboratoriali Pratici";
-
-                reportHeader.innerHTML = `
+                // Header Report
+                const headerReport = document.createElement('div');
+                headerReport.className = "bg-slate-900 text-white p-6 md:p-8 rounded-3xl border-l-8 border-blue-600 shadow-lg mb-8";
+                headerReport.innerHTML = `
                     <div class="flex justify-between items-start flex-wrap gap-4">
                         <div>
-                            <span class="bg-blue-600 text-white text-xxs uppercase px-2.5 py-1 rounded-full font-black tracking-widest">Report Amministrazione</span>
-                            <h3 class="text-xl font-black mt-1">Quadro Valutativo - ${readableType}</h3>
+                            <span class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-full font-black uppercase tracking-wider">Report Direttivo</span>
+                            <h3 class="text-2xl font-black mt-2">Dati Raccolti - ${type === 'openday-terze' ? 'Open Day Classi Terze' : type === 'openday-seconde' ? 'Orientamento Seconde' : 'Ministage Laboratoriali'}</h3>
                         </div>
-                        <div class="bg-white/10 px-4 py-2 rounded-xl text-center">
-                            <span class="block text-2xl font-black text-blue-300">${fetchedResponses.length}</span>
-                            <span class="text-xxs uppercase text-slate-300 font-bold">Campioni Online</span>
+                        <div class="bg-slate-800 border border-slate-700 px-6 py-3 rounded-2xl text-center">
+                            <span class="block text-3xl font-extrabold text-blue-400">${fetchedResponses.length}</span>
+                            <span class="text-xs uppercase text-slate-400 font-bold">Risposte Totali</span>
                         </div>
                     </div>
-                    <p class="text-slate-300 mt-2 text-xs leading-relaxed">
-                        Le elaborazioni grafiche sottostanti aggregano esclusivamente i flussi anonimi registrati sul database. I commenti offrono una disamina iper-dettagliata ad uso del Nucleo di Valutazione e dello Staff di Presidenza del Primo Levi.
-                    </p>
                 `;
-                document.getElementById('dashboard-content').appendChild(reportHeader);
+                document.getElementById('dashboard-content').appendChild(headerReport);
 
-                let targetQuestions = [];
-                if (type === 'openday-seconde') targetQuestions = questionsSeconde;
-                else if (type === 'openday-terze') targetQuestions = questionsTerze;
-                else targetQuestions = questionsMinistage;
+                // Disegno dei grafici e calcolo riflessioni
+                allCurrentQuestions.filter(q => q.chartable).forEach((qObj, index) => {
+                    if (qObj.type === 'matrix') {
+                        // Per le griglie a matrice, creiamo un grafico distinto per ogni sotto-riga della matrice
+                        qObj.rows.forEach((row, rowIndex) => {
+                            const dataCounts = {};
+                            let totalValid = 0;
 
-                const chartableQuestions = targetQuestions.filter(q => q.chartable);
-
-                chartableQuestions.forEach((qObj, index) => {
-                    const dataCounts = {};
-                    let totalValid = 0;
-
-                    fetchedResponses.forEach(res => {
-                        let val = res[qObj.id];
-                        if (val === undefined || val === null || val === '') return;
-                        
-                        if (Array.isArray(val)) {
-                            val.forEach(v => { 
-                                dataCounts[v] = (dataCounts[v] || 0) + 1; 
-                                totalValid++; 
+                            fetchedResponses.forEach(res => {
+                                const matrixRes = res[qObj.id];
+                                if (matrixRes && matrixRes[row.key]) {
+                                    const score = matrixRes[row.key];
+                                    dataCounts[score] = (dataCounts[score] || 0) + 1;
+                                    totalValid++;
+                                }
                             });
-                        } else {
-                            dataCounts[val] = (dataCounts[val] || 0) + 1; 
-                            totalValid++;
-                        }
-                    });
 
-                    if (totalValid > 0) {
-                        createChartSection(qObj, dataCounts, totalValid, index);
+                            if (totalValid > 0) {
+                                createChartSection({
+                                    id: `${qObj.id}_${row.key}`,
+                                    label: `${qObj.label} — ${row.label}`,
+                                    options: qObj.options
+                                }, dataCounts, totalValid, `${index}_${rowIndex}`);
+                            }
+                        });
+                    } else {
+                        const dataCounts = {};
+                        let totalValid = 0;
+
+                        fetchedResponses.forEach(res => {
+                            let val = res[qObj.id];
+                            if (val === undefined || val === null || val === '') return;
+
+                            if (Array.isArray(val)) {
+                                val.forEach(v => {
+                                    dataCounts[v] = (dataCounts[v] || 0) + 1;
+                                    totalValid++;
+                                });
+                            } else {
+                                dataCounts[val] = (dataCounts[val] || 0) + 1;
+                                totalValid++;
+                            }
+                        });
+
+                        if (totalValid > 0) {
+                            createChartSection(qObj, dataCounts, totalValid, index);
+                        }
                     }
                 });
 
             } catch (err) {
-                console.error("Errore fetch dati:", err);
-                document.getElementById('loading-data').innerHTML = `<span class="text-red-500 font-bold">Impossibile connettersi al database di rete.</span>`;
+                console.error("Errore caricamento statistiche:", err);
+                document.getElementById('loading-data').innerHTML = `<span class="text-rose-500 font-bold">Errore di rete nell'accesso alle API Firebase. Riprova.</span>`;
             }
         };
 
+        // Creazione Grafico e Generatore automatico di riflessioni approfondite (5-6 righe)
         function createChartSection(qObj, dataCounts, totalResponses, index) {
             const container = document.getElementById('dashboard-content');
             
             const section = document.createElement('div');
-            section.className = "bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-6 items-center transition hover:shadow-md";
+            section.className = "bg-white p-6 md:p-8 rounded-3xl shadow-md border border-slate-150 flex flex-col md:flex-row gap-8 items-center transition hover:shadow-xl";
 
-            const chartDiv = document.createElement('div');
-            chartDiv.className = "w-full md:w-1/3 relative flex justify-center";
-            chartDiv.style.maxHeight = "280px";
-            chartDiv.innerHTML = `<div class="w-full max-w-[240px]"><canvas id="chart-${index}"></canvas></div>`;
+            const chartWrapper = document.createElement('div');
+            chartWrapper.className = "w-full md:w-2/5 flex justify-center";
+            chartWrapper.innerHTML = `<div class="w-full max-w-[240px]"><canvas id="chart-${index}"></canvas></div>`;
+
+            const textWrapper = document.createElement('div');
+            textWrapper.className = "w-full md:w-3/5 space-y-4";
+
+            // Scomposizione dati per report
+            const sorted = Object.entries(dataCounts).sort((a,b) => b[1] - a[1]);
+            const topLabel = sorted[0][0];
+            const topPct = Math.round((sorted[0][1] / totalResponses) * 100);
             
-            const textDiv = document.createElement('div');
-            textDiv.className = "w-full md:w-2/3 space-y-3";
-            
-            // Ordinamento dati per rilevare le risposte dominanti
-            const sortedEntries = Object.entries(dataCounts).sort((a,b) => b[1] - a[1]);
-            const topAnswer = sortedEntries[0][0];
-            const topPercent = Math.round((sortedEntries[0][1] / totalResponses) * 100);
-            
-            let secondaryAnalysis = "";
-            if (sortedEntries.length > 1) {
-                const secondAnswer = sortedEntries[1][0];
-                const secondPercent = Math.round((sortedEntries[1][1] / totalResponses) * 100);
-                secondaryAnalysis = `Al contempo, una quota complementare pari al <strong>${secondPercent}%</strong> dei rispondenti ha manifestato la propria preferenza per l'opzione <em>"${secondAnswer}"</em>, evidenziando una distribuzione non polarizzata ma strutturalmente eterogenea.`;
+            let deviazioneNotevole = "";
+            if (sorted.length > 1) {
+                const secondLabel = sorted[1][0];
+                const secondPct = Math.round((sorted[1][1] / totalResponses) * 100);
+                deviazioneNotevole = `Contestualmente, l'opzione <em>"${secondLabel}"</em> raccoglie una percentuale di preferenze secondaria attestandosi sul <strong>${secondPct}%</strong>, delineando un nucleo d'interesse degno di specifico approfondimento didattico.`;
             } else {
-                secondaryAnalysis = "L'unanimità delle risposte pervenute palesa un orientamento monolitico e privo di varianze significative all'interno della coorte campionaria.";
+                deviazioneNotevole = "L'unanimità statistica registrata esclude polarizzazioni differenti, mostrando una convergenza d'opinione eccezionale da parte del campione.";
             }
 
-            // Riflessione complessa e iper-dettagliata di 5-6 righe richiesta per discussione Collegio Docenti
-            const complexReflection = `
-                Dall'analisi qualitativa ed incrociata dei dati raccolti, si evidenzia che la risposta predominante si attesta saldamente su <strong>"${topAnswer}"</strong>, catalizzando il <strong>${topPercent}%</strong> del campione complessivo. Questo dato oggettivo dimostra un orientamento strategico ben definito da parte dell'utenza e conferma il successo della comunicazione d'istituto su questo specifico asse valutativo. ${secondaryAnalysis} 
-                Sotto il profilo strettamente organizzativo per l'ITSCG Primo Levi, tale asimmetria nella distribuzione dei feedback suggerisce la necessità di pianificare azioni correttive mirate o di capitalizzare questo punto di forza all'interno delle linee programmatiche del PTOF, garantendo un'ottimizzazione continua dei servizi di orientamento in entrata.
+            // Generatore di riflessioni pedagogiche complesse (5-6 righe)
+            const commentoAnalitico = `
+                Dall'analisi qualitativa incrociata dei feedback raccolti, l'indicatore principale si orienta nettamente verso l'opzione <strong>"${topLabel}"</strong>, che capitalizza il <strong>${topPct}%</strong> delle preferenze complessive. Questa distribuzione evidenzia l'efficacia delle azioni intraprese in questo specifico settore organizzativo dell'ITSCG Primo Levi. ${deviazioneNotevole} 
+                Per il corpo docente, questi dati indicano una rotta chiara per la redazione del Piano Triennale dell'Offerta Formativa (PTOF) e del Rapporto di Autovalutazione (RAV), consentendo di implementare azioni correttive sui canali informativi minori per elevare ulteriormente gli standard accademici.
             `;
 
-            textDiv.innerHTML = `
+            textWrapper.innerHTML = `
                 <div class="flex items-center space-x-3">
-                    <span class="bg-blue-100 text-blue-900 h-7 w-7 rounded-full flex items-center justify-center font-black text-xs">${index + 1}</span>
-                    <h4 class="text-md font-black text-slate-800 leading-tight">${qObj.label}</h4>
+                    <span class="bg-blue-100 text-blue-900 h-8 w-8 rounded-full flex items-center justify-center font-black text-sm">${index + 1}</span>
+                    <h4 class="text-base md:text-lg font-black text-slate-900 leading-tight">${qObj.label}</h4>
                 </div>
-                <div class="bg-slate-50 p-4 rounded-xl border-l-4 border-emerald-500">
-                    <p class="text-slate-600 leading-relaxed text-xs text-justify font-medium">
-                        ${complexReflection}
+                <div class="bg-slate-50 p-5 rounded-2xl border-l-4 border-blue-500">
+                    <p class="text-slate-700 leading-relaxed text-sm text-justify">
+                        ${commentoAnalitico}
                     </p>
                 </div>
             `;
 
-            section.appendChild(chartDiv);
-            section.appendChild(textDiv);
+            section.appendChild(chartWrapper);
+            section.appendChild(textWrapper);
             container.appendChild(section);
 
-            // Costruzione fisica del grafico a torta (Doughnut)
+            // Inizializzazione della ciambella 2D
             const ctx = document.getElementById(`chart-${index}`).getContext('2d');
-            const bgColors = ['#1d4ed8', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#ef4444', '#06b6d4', '#64748b'];
+            const coloriGrafico = ['#2563eb', '#10b981', '#6366f1', '#f59e0b', '#ec4899', '#ef4444', '#a855f7', '#64748b'];
 
             const newChart = new Chart(ctx, {
                 type: 'doughnut',
@@ -612,7 +856,7 @@
                     labels: Object.keys(dataCounts),
                     datasets: [{
                         data: Object.values(dataCounts),
-                        backgroundColor: bgColors.slice(0, Object.keys(dataCounts).length),
+                        backgroundColor: coloriGrafico.slice(0, Object.keys(dataCounts).length),
                         borderWidth: 2,
                         borderColor: '#ffffff'
                     }]
@@ -623,152 +867,280 @@
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: { 
-                                padding: 10, 
-                                font: { size: 9, weight: 'bold', family: "'Segoe UI', sans-serif" },
+                            labels: {
+                                padding: 12,
+                                font: { size: 9, weight: 'bold', family: 'sans-serif' },
                                 boxWidth: 10
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let val = context.raw;
-                                    let pct = Math.round((val / totalResponses) * 100);
-                                    return ` ${val} risposte (${pct}%)`;
-                                }
                             }
                         }
                     },
-                    cutout: '65%'
+                    cutout: '55%'
                 }
             });
             window.chartInstances.push(newChart);
         }
 
+        // Esportazione in formato CSV Excel con corretta codifica caratteri accentati (BOM)
         window.exportToExcel = function() {
             if (!fetchedResponses || fetchedResponses.length === 0) {
-                showCustomAlert("Nessun dato disponibile nel database per l'esportazione.", "red");
+                openModal("Nessun dato", "Non sono presenti dati da esportare in questo momento.", "⚠️");
                 return;
             }
 
-            let targetQuestions = [];
-            if (currentFormType === 'openday-seconde') targetQuestions = questionsSeconde;
-            else if (currentFormType === 'openday-terze') targetQuestions = questionsTerze;
-            else targetQuestions = questionsMinistage;
+            const relevantQuestions = defaultQuestions[currentFormType];
             
-            // Costruzione CSV per Excel
-            let csvContent = "data:text/csv;charset=utf-8,";
-            const headers = ["Timestamp", ...targetQuestions.map(q => `"${q.label.replace(/"/g, '""')}"`)];
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
+            const headers = ["Data Inserimento", ...relevantQuestions.map(q => `"${q.label.replace(/"/g, '""')}"`)];
             csvContent += headers.join(";") + "\n";
 
             fetchedResponses.forEach(res => {
-                const row = [res.timestamp || ""];
-                targetQuestions.forEach(q => {
-                    let val = res[q.id] || "";
-                    if (Array.isArray(val)) {
-                        val = val.join(", ");
+                const riga = [res.timestamp || ""];
+                relevantQuestions.forEach(q => {
+                    let valore = res[q.id] || "";
+                    if (q.type === 'matrix') {
+                        // Per le matrici aggreghiamo le sotto-risposte in un'unica stringa leggibile
+                        let subVals = [];
+                        q.rows.forEach(row => {
+                            let rVal = (res[q.id] && res[q.id][row.key]) ? res[q.id][row.key] : '';
+                            subVals.push(`${row.label}: ${rVal}`);
+                        });
+                        valore = subVals.join(" | ");
+                    } else if (Array.isArray(valore)) {
+                        valore = valore.join(", ");
                     }
-                    row.push(`"${val.toString().replace(/"/g, '""')}"`);
+                    riga.push(`"${valore.toString().replace(/"/g, '""')}"`);
                 });
-                csvContent += row.join(";") + "\n";
+                csvContent += riga.join(";") + "\n";
             });
 
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Dati_Anonimi_${currentFormType}_ITSCG_Levi.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showCustomAlert("File Excel (CSV) generato ed esportato con successo!", "emerald");
+            const linkEsporta = document.createElement("a");
+            linkEsporta.setAttribute("href", encodeURI(csvContent));
+            linkEsporta.setAttribute("download", `Dati_Questionario_Levi_${currentFormType}.csv`);
+            document.body.appendChild(linkEsporta);
+            linkEsporta.click();
+            document.body.removeChild(linkEsporta);
         };
 
-        window.generateMockData = async function() {
-            const collectionPath = `questionari_levi_gradimento`;
-            const randomElements = (arr) => arr[Math.floor(Math.random() * arr.length)];
-            const randomSample = (arr, num) => arr.sort(() => 0.5 - Math.random()).slice(0, num);
+        // Generazione dati demo casuali direttamente su database online
+        window.generateMockRecords = async function() {
+            if (!userAuthenticated) {
+                openModal("Attenzione", "Collegamento al database non pronto.", "⚠️");
+                return;
+            }
+            if (!confirm("Desideri inserire 15 risposte casuali strutturate nel tuo database reale per questo specifico questionario?")) {
+                return;
+            }
 
-            const mockComuni = ["Seregno", "Meda", "Cesano Maderno", "Lissone", "Carate Brianza", "Desio"];
-            const mockScuole = ["Scuola Media Don Milani", "I.C. Aldo Moro", "I.C. Gianni Rodari", "Scuola Secondaria Levi-Montalcini"];
+            const collectionPath = `artifacts/${appId}/public/data/questionari_risposte`;
+            const randomPick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+            const randomSubset = (arr, max) => arr.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * max) + 1);
+
+            const comuni = ["Seregno", "Meda", "Desio", "Lissone", "Carate Brianza", "Cesano Maderno"];
+            const scuole = ["Don Milani Seregno", "Scuola Media IC Moro", "Istituto Comprensivo San Biagio", "G. Rodari Seregno"];
 
             try {
-                // Generazione record fittizi ma conformi
-                for (let i = 0; i < 8; i++) {
-                    await addDoc(collection(db, collectionPath), {
-                        type: 'openday-seconde',
-                        timestamp: new Date(Date.now() - Math.random() * 864000000).toISOString(),
-                        s1: randomElements(mockComuni),
-                        s2: randomElements(mockScuole),
-                        s3: randomElements(questionsSeconde[2].options),
-                        s4: randomElements(questionsSeconde[3].options),
-                        s5: randomSample([...questionsSeconde[4].options], 2),
-                        s6: Math.floor(Math.random() * 3) + 3,
-                        s7: randomElements(questionsSeconde[6].options)
-                    });
+                for (let i = 0; i < 15; i++) {
+                    let mockRecord = {
+                        type: currentFormType,
+                        timestamp: new Date(Date.now() - Math.random() * 864000000).toISOString()
+                    };
+
+                    if (currentFormType === 'openday-terze') {
+                        mockRecord = {
+                            ...mockRecord,
+                            t1: randomPick(comuni),
+                            t2: randomPick(scuole),
+                            t3: randomPick(defaultQuestions['openday-terze'][2].options),
+                            t4: randomPick(defaultQuestions['openday-terze'][3].options),
+                            t5: randomSubset([...defaultQuestions['openday-terze'][4].options], 3),
+                            t6: Math.floor(Math.random() * 5) + 1,
+                            t7: randomPick(defaultQuestions['openday-terze'][6].options),
+                            t8: Math.floor(Math.random() * 5) + 1,
+                            t9: randomSubset([...defaultQuestions['openday-terze'][8].options], 2),
+                            t12: {
+                                organizz: randomPick(defaultQuestions['openday-terze'][9].options),
+                                accoglia: randomPick(defaultQuestions['openday-terze'][9].options),
+                                disponib: randomPick(defaultQuestions['openday-terze'][9].options),
+                                chiarezz: randomPick(defaultQuestions['openday-terze'][9].options),
+                                utilitac: randomPick(defaultQuestions['openday-terze'][9].options),
+                                partecip: randomPick(defaultQuestions['openday-terze'][9].options)
+                            },
+                            t13: randomPick(defaultQuestions['openday-terze'][10].options)
+                        };
+                    } else if (currentFormType === 'openday-seconde') {
+                        mockRecord = {
+                            ...mockRecord,
+                            s1: randomPick(comuni),
+                            s2: randomPick(scuole),
+                            s3: randomPick(defaultQuestions['openday-seconde'][2].options),
+                            s4: Math.floor(Math.random() * 3) + 3,
+                            s5: randomSubset([...defaultQuestions['openday-seconde'][4].options], 3),
+                            s6: randomPick(defaultQuestions['openday-seconde'][5].options)
+                        };
+                    } else if (currentFormType === 'ministage') {
+                        mockRecord = {
+                            ...mockRecord,
+                            m1: randomPick(comuni),
+                            m2: randomPick(scuole),
+                            m3: randomPick(defaultQuestions['ministage'][2].options),
+                            m4: Math.floor(Math.random() * 3) + 3,
+                            m5: Math.floor(Math.random() * 2) + 4,
+                            m6: randomPick(defaultQuestions['ministage'][5].options),
+                            m7: "Ottimo stage, ho apprezzato la programmazione attiva."
+                        };
+                    }
+
+                    await addDoc(collection(db, collectionPath), mockRecord);
                 }
 
-                for (let i = 0; i < 8; i++) {
-                    await addDoc(collection(db, collectionPath), {
-                        type: 'openday-terze',
-                        timestamp: new Date(Date.now() - Math.random() * 864000000).toISOString(),
-                        q1: randomElements(mockComuni),
-                        q2: randomElements(mockScuole),
-                        q3: randomElements(questionsTerze[2].options),
-                        q4: randomElements(questionsTerze[3].options),
-                        q5: randomSample([...questionsTerze[4].options], 2),
-                        q6: Math.floor(Math.random() * 3) + 3,
-                        q7: randomElements(questionsTerze[6].options),
-                        q8: Math.floor(Math.random() * 3) + 3,
-                        q9: randomSample([...questionsTerze[8].options], 2),
-                        q10: randomSample([...questionsTerze[9].options], 2),
-                        q11: Math.floor(Math.random() * 3) + 3,
-                        q12_1: Math.floor(Math.random() * 3) + 3,
-                        q12_2: Math.floor(Math.random() * 3) + 3,
-                        q12_3: Math.floor(Math.random() * 3) + 3,
-                        q12_4: Math.floor(Math.random() * 3) + 3,
-                        q12_5: Math.floor(Math.random() * 3) + 3,
-                        q12_6: Math.floor(Math.random() * 3) + 3,
-                        q13: randomElements(questionsTerze[17].options)
-                    });
-                }
-
-                showCustomAlert("Dati simulati caricati con successo online! Rigenerazione dashboard...", "emerald");
+                openModal("Fatto", "Caricamento completato con successo. La dashboard statistica è ora aggiornata!", "✅");
                 renderDashboard(currentFormType);
-
             } catch (err) {
-                console.error("Errore caricamento Mock:", err);
-                showCustomAlert("Impossibile connettersi online per popolare il database.", "red");
+                console.error("Errore caricamento dati simulati:", err);
             }
         };
 
-        function createBubbles() {
-            const container = document.getElementById('bubbles-container');
-            const bubbleCount = 16;
-            
-            for (let i = 0; i < bubbleCount; i++) {
-                const bubble = document.createElement('div');
-                bubble.className = 'bubble';
+        // =========================================================================
+        // FISICA FLUIDA DELLE BOLLE SU CANVAS (3D DRIFT E RIMBALZO MORBIDO)
+        // =========================================================================
+        const canvas = document.getElementById('bubble-canvas');
+        const ctx = canvas.getContext('2d');
+        const logoImg = new Image();
+        logoImg.src = 'levi.png';
+
+        let bubbles = [];
+        const numBubbles = 15;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Classe Bolla ad alte prestazioni
+        class Bubble {
+            constructor() {
+                this.reset(true);
+            }
+
+            reset(initial = false) {
+                this.r = Math.random() * 35 + 30; // raggio (30 a 65)
+                this.x = Math.random() * (canvas.width - this.r * 2) + this.r;
+                this.y = initial ? Math.random() * canvas.height : canvas.height + this.r * 2;
                 
-                const size = Math.random() * 80 + 50; 
-                const left = Math.random() * 100;
-                const delay = Math.random() * 18;
-                const duration = Math.random() * 12 + 12; 
+                // Velocità casuale lungo gli assi
+                this.vx = (Math.random() - 0.5) * 0.8;
+                this.vy = -(Math.random() * 0.6 + 0.4); 
                 
-                bubble.style.width = `${size}px`;
-                bubble.style.height = `${size}px`;
-                bubble.style.left = `${left}%`;
-                bubble.style.animationDelay = `${delay}s`;
-                bubble.style.animationDuration = `${duration}s`;
+                // Variabili per effetto tridimensionale "avanti e indietro"
+                this.z = Math.random() * 0.5 + 0.75; // Scala (Profondità)
+                this.zSpeed = (Math.random() > 0.5 ? 0.002 : -0.002);
                 
-                container.appendChild(bubble);
+                this.angle = Math.random() * Math.PI * 2;
+                this.wobbleSpeed = Math.random() * 0.02 + 0.01;
+            }
+
+            update() {
+                this.y += this.vy * this.z;
+                
+                // Movimento sinusoidale laterale
+                this.angle += this.wobbleSpeed;
+                this.x += (this.vx + Math.sin(this.angle) * 0.3) * this.z;
+
+                // Oscillazione asse Z (Avanti e Indietro)
+                this.z += this.zSpeed;
+                if (this.z > 1.25 || this.z < 0.7) {
+                    this.zSpeed = -this.zSpeed; // Inversione contrazione
+                }
+
+                // Rimbalzo morbido sui bordi laterali (Senza scoppiare)
+                const currentRadius = this.r * this.z;
+                if (this.x - currentRadius <= 0) {
+                    this.x = currentRadius;
+                    this.vx = Math.abs(this.vx);
+                } else if (this.x + currentRadius >= canvas.width) {
+                    this.x = canvas.width - currentRadius;
+                    this.vx = -Math.abs(this.vx);
+                }
+
+                // Rimbalzo sul soffitto / pavimento per non farle scoppiare ma rientrare dolcemente
+                if (this.y + currentRadius <= 0) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                const currentRadius = this.r * this.z;
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                // Disegno della sfera traslucida
+                const gradient = ctx.createRadialGradient(
+                    -currentRadius * 0.2, -currentRadius * 0.2, currentRadius * 0.1,
+                    0, 0, currentRadius
+                );
+                gradient.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
+                gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.15)');
+                gradient.addColorStop(0.95, 'rgba(255, 255, 255, 0.35)');
+                gradient.addColorStop(1, 'rgba(30, 58, 138, 0.15)');
+
+                ctx.beginPath();
+                ctx.arc(0, 0, currentRadius, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                // Bordo riflettente
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+                ctx.stroke();
+
+                // Logo all'interno della bolla
+                const logoSize = currentRadius * 1.1; // Logo adattato alla bolla
+                ctx.globalAlpha = 0.4 * this.z; // Trasparenza in base alla vicinanza
+                try {
+                    ctx.drawImage(logoImg, -logoSize / 2, -logoSize / 2, logoSize, logoSize);
+                } catch (e) {
+                    // Fallback se il logo non è accessibile: disegna cerchio grafico concentrico
+                    ctx.beginPath();
+b                    ctx.arc(0, 0, currentRadius * 0.5, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                    ctx.stroke();
+                }
+
+                // Riflesso di luce (Effetto Sfera Lucida)
+                ctx.globalAlpha = 1.0;
+                ctx.beginPath();
+                ctx.ellipse(-currentRadius * 0.35, -currentRadius * 0.35, currentRadius * 0.25, currentRadius * 0.12, Math.PI / 4, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+                ctx.fill();
+
+                ctx.restore();
             }
         }
 
-        window.onload = () => {
-            createBubbles();
+        // Popolamento iniziale bolle
+        for (let i = 0; i < numBubbles; i++) {
+            bubbles.push(new Bubble());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            bubbles.forEach(b => {
+                b.update();
+                b.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        // Avvio dell'animazione a caricamento completato
+        window.onload = function() {
+            animate();
             showView('view-role-selection');
         };
 
     </script>
 </body>
 </html>
+
+```
