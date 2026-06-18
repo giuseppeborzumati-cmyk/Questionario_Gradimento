@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -277,6 +277,9 @@
                     <p class="text-sm text-slate-500 font-semibold uppercase tracking-wider">ITSCG Primo Levi Seregno • Amministrazione</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
+                    <button onclick="showView('view-manage-events'); loadAndRenderEvents();" class="bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow transition">
+                        📅 Gestisci Date Eventi
+                    </button>
                     <button onclick="showView('view-add-question')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow transition">
                         ➕ Aggiungi Domanda Nuova
                     </button>
@@ -371,6 +374,43 @@
             </form>
         </div>
 
+        <!-- FORM GESTIONE DATE EVENTI -->
+        <div id="view-manage-events" class="glass-card p-8 max-w-4xl mx-auto hidden-section">
+            <button onclick="showView('view-teacher-dashboard')" class="text-blue-600 font-extrabold hover:underline mb-6 inline-flex items-center space-x-1">
+                <span>&larr; Torna alla Dashboard Analitica</span>
+            </button>
+            <h2 class="text-2xl font-black text-slate-900 mb-6">Gestione Date ed Eventi</h2>
+            
+            <form id="add-event-form" class="space-y-4 mb-8" onsubmit="submitNewEvent(event)">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Destinazione</label>
+                        <select id="new-ev-target" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white outline-none" required>
+                            <option value="openday-terze">Open Day Classi Terze</option>
+                            <option value="openday-seconde">Orientamento Classi Seconde</option>
+                            <option value="ministage">Ministage Laboratoriali</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Data Evento</label>
+                        <input type="date" id="new-ev-date" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Descrizione (es. Turno Mattina)</label>
+                        <input type="text" id="new-ev-desc" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white outline-none" placeholder="Descrizione sintetica..." required>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-fuchsia-600 hover:bg-fuchsia-700 text-white py-3 rounded-xl font-bold shadow transition">Aggiungi Evento al Calendario Online</button>
+            </form>
+
+            <div class="border-t border-slate-200 pt-6">
+                <h3 class="text-lg font-bold text-slate-800 mb-4">Eventi attualmente configurati e visibili</h3>
+                <div id="events-list-container" class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                    <!-- Eventi caricati dinamicamente -->
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- FOOTER ISTITUZIONALE -->
@@ -462,7 +502,7 @@
             'openday-terze': [
                 { id: 't1', type: 'text', label: '1. Comune di Provenienza', required: true, chartable: false },
                 { id: 't2', type: 'text', label: '2. Scuola Secondaria di Primo Grado di Provenienza', required: true, chartable: false },
-                { id: 't3', type: 'date', label: "3. In quale data avete frequentato l'Open Day?", required: true, chartable: false },
+                { id: 't3', type: 'select', label: "3. Seleziona la data / l'evento a cui hai partecipato:", options: [], required: true, chartable: true },
                 { id: 't4', type: 'radio', label: "4. A quale presentazione dell'indirizzo di studi avete partecipato?", options: ['Liceo Scientifico opzione Scienze Applicate', 'Relazioni Internazionali per il Marketing (RIM)', 'Sistema Moda (articolazione tessile abbigliamento moda)', 'Logistica e Trasporti', 'Costruzione Ambiente e Territorio (CAT)', 'Tutti i percorsi presentati'], required: true, chartable: true },
                 { id: 't5', type: 'checkbox', label: "5. Ci sono aspetti che vi preoccupano maggiormente nel passaggio alla scuola superiore?", options: ['Rapporto con i nuovi docenti', 'Metodo di studio e carico dei compiti a casa', 'Dialogo e canale scuola-famiglia', 'Livello di difficoltà complessivo degli studi', 'Inserimento sociale nel nuovo gruppo classe', 'Integrazione BES / DSA', 'Distanza da casa e trasporti pubblici'], chartable: true },
                 { id: 't6', type: 'scale', label: "6. Ad oggi, qual è l'intenzione effettiva di iscrizione presso l'ITSCG Primo Levi? (1 = Per nulla, 5 = Moltissimo)", required: true, chartable: true },
@@ -486,7 +526,7 @@
             'openday-seconde': [
                 { id: 's1', type: 'text', label: '1. Comune di Provenienza', required: true, chartable: false },
                 { id: 's2', type: 'text', label: '2. Scuola Secondaria di Primo Grado di Provenienza', required: true, chartable: false },
-                { id: 's0', type: 'date', label: "3. In quale data avete frequentato l'incontro di Orientamento?", required: true, chartable: false },
+                { id: 's0', type: 'select', label: "3. Seleziona la data / l'evento a cui hai partecipato:", options: [], required: true, chartable: true },
                 { id: 's3', type: 'radio', label: "4. Con quanto anticipo state valutando l'iscrizione alla scuola superiore?", options: ['Già durante il secondo anno di medie', 'Solo a titolo esplorativo preliminare', 'Incuriositi dalle materie laboratoriali'], required: true, chartable: true },
                 { id: 's4', type: 'scale', label: "5. Quanto ritenete utile avviare un percorso informativo precoce in seconda media? (1-5)", required: true, chartable: true },
                 { id: 's5', type: 'checkbox', label: "6. Quali indirizzi del nostro Istituto attirano maggiormente il vostro interesse?", options: ['Liceo Scientifico Scienze Applicate', 'Relazioni Internazionali (RIM)', 'Sistema Moda', 'Logistica e Trasporti', 'Costruzione Ambiente (CAT)'], chartable: true },
@@ -500,7 +540,7 @@
             'ministage': [
                 { id: 'm1', type: 'text', label: '1. Comune di Provenienza', required: true, chartable: false },
                 { id: 'm2', type: 'text', label: '2. Scuola Secondaria di Provenienza', required: true, chartable: false },
-                { id: 'm0', type: 'date', label: "3. In quale data avete svolto l'attività di Ministage pratico?", required: true, chartable: false },
+                { id: 'm0', type: 'select', label: "3. Seleziona la data / l'evento a cui hai partecipato:", options: [], required: true, chartable: true },
                 { id: 'm3', type: 'radio', label: "4. A quale laboratorio disciplinare (Ministage) hai partecipato in presenza?", options: ['Informatica applicata, Coding e Microcontrollori', 'Chimica organica, Strumentazione e Materiali', 'Economia Aziendale, Geopolitica e Marketing', 'Progettazione grafica computerizzata (CAT)', 'Lingue Straniere e relazioni internazionali'], required: true, chartable: true },
                 { id: 'm4', type: 'scale', label: "5. Quanto hai trovato utile la sperimentazione prima di passare all'azione? (1-5)", required: true, chartable: true },
                 { id: 'm5', type: 'scale', label: "6. Chiarezza, supporto ed accoglienza mostrata dai docenti e alunni tutor (1-5)", required: true, chartable: true },
@@ -515,6 +555,7 @@
         let currentQuestions = [];
         let fetchedResponses = []; 
         let customQuestions = []; 
+        let configuredEvents = []; 
 
         // Navigazione sezioni
         function showView(viewId) {
@@ -552,14 +593,112 @@
         }
         window.loadCustomQuestions = loadCustomQuestions;
 
+        // Gestione Eventi (Date pre-impostate dai docenti)
+        async function loadConfiguredEvents() {
+            try {
+                const collectionPath = `artifacts/${appId}/public/data/eventi_configurati`;
+                const snapshot = await getDocs(collection(db, collectionPath));
+                configuredEvents = [];
+                snapshot.forEach(doc => {
+                    configuredEvents.push({ id: doc.id, ...doc.data() });
+                });
+            } catch (err) {
+                console.error("Impossibile scaricare eventi configurati:", err);
+            }
+        }
+        window.loadConfiguredEvents = loadConfiguredEvents;
+
+        async function submitNewEvent(e) {
+            e.preventDefault();
+            const target = document.getElementById('new-ev-target').value;
+            const date = document.getElementById('new-ev-date').value;
+            const desc = document.getElementById('new-ev-desc').value;
+            
+            try {
+                const collectionPath = `artifacts/${appId}/public/data/eventi_configurati`;
+                await addDoc(collection(db, collectionPath), {
+                    target, date, desc, timestamp: new Date().toISOString()
+                });
+                document.getElementById('add-event-form').reset();
+                loadAndRenderEvents();
+            } catch (err) {
+                console.error(err);
+                openModal("Errore", "Impossibile salvare l'evento.", "❌");
+            }
+        }
+        window.submitNewEvent = submitNewEvent;
+
+        async function loadAndRenderEvents() {
+            await loadConfiguredEvents();
+            const container = document.getElementById('events-list-container');
+            container.innerHTML = '';
+            
+            if (configuredEvents.length === 0) {
+                container.innerHTML = '<p class="text-sm text-slate-500 font-medium">Nessun evento configurato al momento.</p>';
+                return;
+            }
+            
+            configuredEvents.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            configuredEvents.forEach(ev => {
+                const targetLabel = ev.target === 'openday-terze' ? 'Op. Day Terze' : (ev.target === 'openday-seconde' ? 'Orient. Seconde' : 'Ministage');
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm';
+                div.innerHTML = `
+                    <div class="flex items-center flex-wrap gap-2">
+                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-md font-bold uppercase tracking-wider">${targetLabel}</span>
+                        <span class="font-black text-slate-800">${ev.date}</span>
+                        <span class="text-sm text-slate-600 font-medium">— ${ev.desc}</span>
+                    </div>
+                    <button onclick="deleteEvent('${ev.id}')" class="text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 p-2 rounded-lg transition" title="Elimina Evento">
+                        🗑️
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+        }
+        window.loadAndRenderEvents = loadAndRenderEvents;
+
+        async function deleteEvent(id) {
+            openConfirmModal("Elimina Evento", "Sei sicuro di voler eliminare definitivamente questa data/evento dal calendario?", async () => {
+                try {
+                    const docRef = doc(db, `artifacts/${appId}/public/data/eventi_configurati`, id);
+                    await deleteDoc(docRef);
+                    loadAndRenderEvents();
+                } catch (e) {
+                    console.error("Errore eliminazione:", e);
+                }
+            });
+        }
+        window.deleteEvent = deleteEvent;
+
         // Avvio form compilazione studente
         async function startForm(type) {
             currentFormType = type;
             
-            // Carica domande personalizzate dal database
+            // Carica domande ed eventi personalizzati dal database
             await loadCustomQuestions();
+            await loadConfiguredEvents();
+            
             const relevantCustom = customQuestions.filter(q => q.target === type);
-            currentQuestions = [...defaultQuestions[type], ...relevantCustom];
+            
+            // Cloniamo l'array di default per non mutare permanentemente la struttura base
+            let questionsBase = JSON.parse(JSON.stringify(defaultQuestions[type]));
+            
+            // Trova la domanda relativa alla data e popolala con gli eventi configurati dai docenti
+            const dateQIndex = questionsBase.findIndex(q => q.id === 't3' || q.id === 's0' || q.id === 'm0');
+            if (dateQIndex !== -1) {
+                const targetEvents = configuredEvents.filter(e => e.target === type);
+                if (targetEvents.length > 0) {
+                    targetEvents.sort((a,b) => new Date(b.date) - new Date(a.date));
+                    questionsBase[dateQIndex].options = targetEvents.map(e => `${e.date} — ${e.desc}`);
+                } else {
+                    questionsBase[dateQIndex].options = ["Nessun evento configurato al momento (Procedi ugualmente)"];
+                    questionsBase[dateQIndex].required = false;
+                }
+            }
+
+            currentQuestions = [...questionsBase, ...relevantCustom];
 
             let titleText = '';
             if (type === 'openday-terze') titleText = 'Questionario Open Day - Classi Terze';
@@ -667,13 +806,15 @@
 
             const formData = new FormData(e.target);
             
-            // Estrazione dell'anno della data inserita
+            // Estrazione dell'anno dalla data/evento selezionato dalla tendina
             let extractedYear = 2026; // Anno di default
             const dateFields = ['t3', 's0', 'm0'];
             for (let f of dateFields) {
                 const fVal = formData.get(f);
-                if (fVal) {
-                    const parsedYear = new Date(fVal).getFullYear();
+                if (fVal && fVal !== "Nessun evento configurato al momento (Procedi ugualmente)") {
+                    // Il formato salvato nella tendina è "YYYY-MM-DD — Descrizione"
+                    const datePart = fVal.split(' — ')[0];
+                    const parsedYear = new Date(datePart).getFullYear();
                     if (!isNaN(parsedYear)) {
                         extractedYear = parsedYear;
                     }
@@ -1504,7 +1645,7 @@
                             ...mockRecord,
                             t1: randomPick(comuni),
                             t2: randomPick(scuole),
-                            t3: `${chosenYear}-11-15`,
+                            t3: `${chosenYear}-11-15 — Turno Mock (Simulato)`,
                             t4: randomPick(defaultQuestions['openday-terze'][3].options),
                             t5: randomSubset([...defaultQuestions['openday-terze'][4].options], 3),
                             t6: Math.floor(Math.random() * 5) + 1,
@@ -1534,7 +1675,7 @@
                             ...mockRecord,
                             s1: randomPick(comuni),
                             s2: randomPick(scuole),
-                            s0: `${chosenYear}-05-18`,
+                            s0: `${chosenYear}-05-18 — Evento Orientamento Simulato`,
                             s3: randomPick(defaultQuestions['openday-seconde'][3].options),
                             s4: Math.floor(Math.random() * 3) + 3,
                             s5: randomSubset([...defaultQuestions['openday-seconde'][5].options], 3),
@@ -1550,7 +1691,7 @@
                             ...mockRecord,
                             m1: randomPick(comuni),
                             m2: randomPick(scuole),
-                            m0: `${chosenYear}-01-22`,
+                            m0: `${chosenYear}-01-22 — Laboratorio Pratico Simulato`,
                             m3: randomPick(defaultQuestions['ministage'][3].options),
                             m4: Math.floor(Math.random() * 3) + 3,
                             m5: Math.floor(Math.random() * 2) + 4,
